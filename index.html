@@ -89,17 +89,27 @@
     display:flex; gap:6px; margin-bottom:12px; flex-wrap:wrap;
   }
   .theme-label{ font-size:11px; font-weight:700; color:var(--info-color); align-self:center; margin-right:2px; text-transform:uppercase; letter-spacing:0.5px; }
+  /* Theme pills - color circle only, no text */
   .theme-pill{
-    padding:5px 12px; border-radius:20px; border:2px solid transparent;
-    cursor:pointer; font-size:11px; font-weight:700; color:#fff; transition:transform 0.15s;
+    width:30px; height:30px; border-radius:50%; border:3px solid transparent;
+    cursor:pointer; transition:transform 0.15s, border-color 0.15s;
+    position:relative;
   }
-  .theme-pill:hover{ transform:scale(1.08); }
-  .theme-pill.active{ border-color:#fff; }
+  .theme-pill:hover{ transform:scale(1.18); }
+  .theme-pill.active{ border-color:#fff; box-shadow:0 0 0 2px rgba(0,0,0,0.3); }
   .theme-pill[data-t="classic"]{ background:#8f7a66; }
-  .theme-pill[data-t="dark"]{ background:#444; }
+  .theme-pill[data-t="dark"]{ background:#333; }
   .theme-pill[data-t="ocean"]{ background:#1a5276; }
   .theme-pill[data-t="forest"]{ background:#1e8449; }
   .theme-pill[data-t="purple"]{ background:#6c3483; }
+  /* Tooltip on hover */
+  .theme-pill::after{
+    content:attr(title); position:absolute; bottom:-26px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.7); color:#fff; font-size:10px; padding:2px 6px;
+    border-radius:4px; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity 0.2s;
+  }
+  .theme-pill:hover::after{ opacity:1; }
 
   /* ---- ACTION BUTTONS ---- */
   .action-row{
@@ -252,30 +262,21 @@
     </div>
   </div>
 
-  <!-- Theme selector always visible -->
+  <!-- Theme selector - color circles, no text -->
   <div class="theme-row">
     <div class="theme-label">Theme:</div>
-    <div class="theme-pill active" data-t="classic">Classic</div>
-    <div class="theme-pill" data-t="dark">Dark</div>
-    <div class="theme-pill" data-t="ocean">Ocean</div>
-    <div class="theme-pill" data-t="forest">Forest</div>
-    <div class="theme-pill" data-t="purple">Purple</div>
+    <div class="theme-pill active" data-t="classic" title="Classic"></div>
+    <div class="theme-pill" data-t="dark" title="Dark"></div>
+    <div class="theme-pill" data-t="ocean" title="Ocean"></div>
+    <div class="theme-pill" data-t="forest" title="Forest"></div>
+    <div class="theme-pill" data-t="purple" title="Purple"></div>
   </div>
 
-  <!-- Action buttons always visible -->
+  <!-- Action buttons - icon only -->
   <div class="action-row">
-    <button class="btn" id="newGameBtn">
-      <span class="btn-icon">&#9654;</span>
-      <span class="btn-text">New Game</span>
-    </button>
-    <button class="btn" id="undoBtn" disabled>
-      <span class="btn-icon">&#8617;</span>
-      <span class="btn-text">Undo</span>
-    </button>
-    <button class="btn" id="soundBtn">
-      <span class="btn-icon" id="soundIcon">&#128264;</span>
-      <span class="btn-text" id="soundText">Sound ON</span>
-    </button>
+    <button class="btn" id="newGameBtn" title="New Game">&#9654; New Game</button>
+    <button class="btn" id="undoBtn" disabled title="Undo last move">&#8617; Undo</button>
+    <button class="btn" id="soundBtn" title="Toggle Sound"><span id="soundIcon">&#128264;</span> <span id="soundText">Sound</span></button>
   </div>
 
   <!-- Game Board -->
@@ -335,7 +336,7 @@
   let board=[], prevBoard=null, prevScore=0, prevMoves=0;
   let score=0, best=0, moves=0;
   let hasWon=false, keepGoing=false, locked=false;
-  let soundOn=true, timerInt=null, elapsed=0;
+  let soundOn=true, timerInt=null, elapsed=0, timerStarted=false;
 
   const $=id=>document.getElementById(id);
   const boardWrap=$("boardWrap"), gridBg=$("gridBg"), tilesLayer=$("tilesLayer");
@@ -396,7 +397,20 @@
   document.querySelectorAll(".theme-pill").forEach(p=>p.addEventListener("click",()=>applyTheme(p.dataset.t)));
 
   /* ------ TIMER ------ */
-  function startTimer(){ clearInterval(timerInt); elapsed=0; timerInt=setInterval(()=>{ elapsed++; const m=String(Math.floor(elapsed/60)).padStart(2,"0"),s=String(elapsed%60).padStart(2,"0"); timerEl.textContent=m+":"+s; },1000); }
+  function startTimer(){
+    clearInterval(timerInt); elapsed=0; timerStarted=false;
+    timerEl.textContent="00:00";
+  }
+  function startTimerOnFirstMove(){
+    if(timerStarted) return;
+    timerStarted=true;
+    timerInt=setInterval(()=>{
+      elapsed++;
+      const m=String(Math.floor(elapsed/60)).padStart(2,"0");
+      const s=String(elapsed%60).padStart(2,"0");
+      timerEl.textContent=m+":"+s;
+    },1000);
+  }
   function stopTimer(){ clearInterval(timerInt); }
 
   /* ------ LEADERBOARD ------ */
@@ -438,7 +452,8 @@
     updateScore(); moveEl.textContent="0"; undoBtn.disabled=true;
     nameRow.style.display=""; nameEl.value="";
     saveBtn.textContent="Save Score"; saveBtn.disabled=false;
-    spawn(); spawn(); render(); startTimer();
+    spawn(); spawn(); render();
+    startTimer(); // resets timer to 00:00, does NOT start counting yet
   }
 
   /* ------ SPAWN ------ */
@@ -504,6 +519,7 @@
       if(moved){ anyMoved=true; totalGained+=gained; if(gained) merged=true; setLine(dir,idx,result); }
     }
     if(!anyMoved) return;
+    startTimerOnFirstMove(); // timer starts only on first move
     prevBoard=sb; prevScore=ss; prevMoves=sm; undoBtn.disabled=false;
     const ps=score; score+=totalGained; moves++; moveEl.textContent=moves;
     spawn(); render(); updateScore(ps);
@@ -547,7 +563,12 @@
   newBtn.addEventListener("click",newGame);
   overNewBtn.addEventListener("click",newGame);
   winNewBtn.addEventListener("click",newGame);
-  keepGoingBtn.addEventListener("click",()=>{ keepGoing=true; locked=false; winOverlay.classList.remove("show"); startTimer(); });
+  keepGoingBtn.addEventListener("click",()=>{
+    keepGoing=true; locked=false;
+    winOverlay.classList.remove("show");
+    timerStarted=false;
+    startTimerOnFirstMove(); // resume timer immediately when keeping going
+  });
   saveBtn.addEventListener("click",()=>{
     addLB(nameEl.value.trim(),score);
     nameRow.style.display="none"; saveBtn.textContent="Saved!"; saveBtn.disabled=true;
