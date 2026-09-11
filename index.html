@@ -12,21 +12,21 @@
 <meta name="robots" content="index, follow">
 <meta name="language" content="English">
 <meta name="author" content="wani012">
-<link rel="canonical" href="https://wani012.github.io/2048-game/">
+<link rel="canonical" href="https://wani012.github.io/1024-game/">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="website">
-<meta property="og:url" content="https://wani012.github.io/2048-game/">
+<meta property="og:url" content="https://wani012.github.io/1024-game/">
 <meta property="og:title" content="1024 Puzzle Game - Play Online Free">
 <meta property="og:description" content="Challenge your brain! Merge tiles starting from 1, reach 1024, and compete for the top spot on the live leaderboard.">
-<meta property="og:image" content="https://wani012.github.io/2048-game/preview.png">
+<meta property="og:image" content="https://wani012.github.io/1024-game/preview.png">
 
 <!-- Twitter Cards -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="https://wani012.github.io/2048-game/">
+<meta name="twitter:url" content="https://wani012.github.io/1024-game/">
 <meta name="twitter:title" content="1024 Puzzle Game - Play Online Free">
 <meta name="twitter:description" content="Play the free 1024 tile puzzle game. Smooth controls, multiple themes, and instant global best score tracking!">
-<meta name="twitter:image" content="https://wani012.github.io/2048-game/preview.png">
+<meta name="twitter:image" content="https://wani012.github.io/1024-game/preview.png">
 
 <!-- Mobile App & Theme Meta -->
 <meta name="theme-color" content="#faf8ef">
@@ -43,7 +43,7 @@
   "@context": "https://schema.org",
   "@type": "WebApplication",
   "name": "1024 Puzzle Game",
-  "url": "https://wani012.github.io/2048-game/",
+  "url": "https://wani012.github.io/1024-game/",
   "applicationCategory": "GameApplication",
   "operatingSystem": "All",
   "genre": "Puzzle",
@@ -681,7 +681,7 @@ function updateGlobalBestIfHigher(newScore) {
   });
 
   function shareScore(statusText){
-    const shareUrl = "https://wani012.github.io/2048-game/";
+    const shareUrl = window.location.origin + window.location.pathname;
     const text = `🔥 ${statusText} in 1024 Puzzle Game!\nScore: ${score.toLocaleString()} | Moves: ${moves} | Time: ${timerEl.textContent}\nCan you beat my record? Play here: ${shareUrl}`;
     if(navigator.share){
       navigator.share({ title:"1024 Puzzle Challenge", text:text, url:shareUrl }).catch(()=>{});
