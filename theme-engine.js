@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Ultra-Realistic, High-Performance Canvas Theme Engine for 1024 Game
  * 60 FPS Mobile-Optimized with Error Detection & Auto-Recovery
  * 
@@ -58,8 +58,8 @@
           }
         });
 
-        // Load saved theme
-        const saved = localStorage.getItem('g1024_active_theme') || 'stargazer';
+        // Load saved theme (default to aqua underwater)
+        const saved = localStorage.getItem('g1024_active_theme') || 'aqua';
         this.switchTheme(saved);
       } catch (err) {
         this.handleError(err);
@@ -94,13 +94,28 @@
 
     switchTheme: function(themeName) {
       if (!['stargazer', 'aqua', 'arctic'].includes(themeName)) {
-        themeName = 'stargazer';
+        themeName = 'aqua';
       }
       this.currentTheme = themeName;
       try {
         localStorage.setItem('g1024_active_theme', themeName);
       } catch(e){}
       document.body.setAttribute('data-animated-theme', themeName);
+
+      // Manage underwater coral video / photo layer visibility
+      const bgVideo = document.getElementById('underwaterVideo');
+      const bgFallback = document.getElementById('underwaterFallback');
+      if (bgVideo && bgFallback) {
+        if (themeName === 'aqua') {
+          bgVideo.style.display = 'block';
+          bgFallback.style.display = 'block';
+          if (bgVideo.paused) bgVideo.play().catch(()=>{});
+        } else {
+          bgVideo.style.display = 'none';
+          bgFallback.style.display = 'none';
+          if (!bgVideo.paused) bgVideo.pause();
+        }
+      }
 
       document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-theme') === themeName);

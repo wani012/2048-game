@@ -1,5 +1,5 @@
-const CACHE_NAME = '1024-v10';
-const ASSETS = ['./', 'index.html', 'style.css', 'theme-engine.js', 'manifest.json', 'icon.png'];
+const CACHE_NAME = '1024-v11';
+const ASSETS = ['./', 'index.html', 'style.css', 'theme-engine.js', 'underwater-reef.jpg', 'manifest.json', 'icon.png'];
 
 self.addEventListener('install', e => {
   e.waitUntil(

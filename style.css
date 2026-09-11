@@ -1,7 +1,35 @@
 ﻿/* ==========================================================================
-   GLASSMORPHIC THEMES & CANVAS ACCELERATION STYLING
+   HIGH-REALISM UNDERWATER THEME & GLASSMORPHIC UI STYLING
    ========================================================================== */
 
+/* 1. Full-screen Seamless High-Definition Video / Image Layer */
+.underwater-bg-video,
+.underwater-bg-img {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  transition: opacity 0.5s ease;
+}
+
+/* Underwater ambient tint & depth shading */
+body {
+  position: relative;
+  background-color: #031326 !important;
+  overflow-x: hidden;
+}
+
+body::before {
+  display: none !important; /* disable simple dot overlay so realistic underwater visual pops */
+}
+
+/* 2. HTML5 Canvas Layer (Z-Index: -1) */
 #bg-canvas {
   position: fixed;
   top: 0;
@@ -15,7 +43,123 @@
   will-change: transform;
 }
 
-/* Glassmorphic Theme Switcher Row */
+/* 3. Glassmorphic UI (Frosted Glass Look) */
+.glass-panel,
+.board-wrap,
+.score-box,
+.stat-box,
+.how-to,
+.icon-btn,
+.boost-btn,
+.lb-card {
+  background: rgba(255, 255, 255, 0.12) !important;
+  backdrop-filter: blur(14px) saturate(160%) !important;
+  -webkit-backdrop-filter: blur(14px) saturate(160%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.28) !important;
+  box-shadow: 0 8px 32px rgba(0, 40, 80, 0.45) !important;
+  border-radius: 18px !important;
+}
+
+/* Game Board Underwater Glass Styling */
+.board-wrap {
+  border-radius: 24px !important;
+  background: rgba(10, 45, 80, 0.28) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.35) !important;
+  box-shadow: 0 16px 45px rgba(0, 25, 55, 0.55), 0 0 35px rgba(0, 240, 255, 0.15) !important;
+}
+
+.cell-bg {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: inset 0 2px 6px rgba(0, 20, 45, 0.3) !important;
+}
+
+/* Frosted Glass Tiles with Vibrant Underwater Energy */
+.tile-inner {
+  border-radius: 14px !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.v1 {
+  background: rgba(255, 255, 255, 0.22) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.55) !important;
+  box-shadow: 0 4px 16px rgba(0, 150, 255, 0.25) !important;
+}
+
+.v2 {
+  background: rgba(56, 189, 248, 0.32) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(186, 230, 253, 0.7) !important;
+  box-shadow: 0 4px 18px rgba(56, 189, 248, 0.35) !important;
+}
+
+.v4 {
+  background: rgba(20, 184, 166, 0.38) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(153, 246, 228, 0.75) !important;
+  box-shadow: 0 4px 20px rgba(20, 184, 166, 0.4) !important;
+}
+
+.v8 {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.85), rgba(234, 88, 12, 0.9)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(254, 215, 170, 0.85) !important;
+  box-shadow: 0 0 22px rgba(249, 115, 22, 0.65) !important;
+}
+
+.v16 {
+  background: linear-gradient(135deg, rgba(244, 63, 94, 0.88), rgba(225, 29, 72, 0.92)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(254, 205, 211, 0.85) !important;
+  box-shadow: 0 0 25px rgba(244, 63, 94, 0.7) !important;
+}
+
+.v32 {
+  background: linear-gradient(135deg, rgba(168, 85, 247, 0.88), rgba(124, 58, 237, 0.92)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(233, 213, 255, 0.85) !important;
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.7) !important;
+}
+
+.v64 {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.9), rgba(14, 165, 233, 0.92)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(165, 243, 252, 0.9) !important;
+  box-shadow: 0 0 28px rgba(6, 182, 212, 0.8) !important;
+}
+
+.v128 {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9), rgba(5, 150, 105, 0.92)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(167, 243, 208, 0.9) !important;
+  box-shadow: 0 0 30px rgba(16, 185, 129, 0.8) !important;
+}
+
+.v256 {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.9), rgba(217, 119, 6, 0.95)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(254, 240, 138, 0.95) !important;
+  box-shadow: 0 0 32px rgba(245, 158, 11, 0.85) !important;
+}
+
+.v512 {
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.92), rgba(67, 56, 202, 0.95)) !important;
+  color: #ffffff !important;
+  border: 1.5px solid rgba(199, 210, 254, 0.95) !important;
+  box-shadow: 0 0 34px rgba(99, 102, 241, 0.9) !important;
+}
+
+.v1024 {
+  background: linear-gradient(135deg, #00f0ff 0%, #0284c7 50%, #f59e0b 100%) !important;
+  color: #ffffff !important;
+  border: 2.5px solid #ffffff !important;
+  box-shadow: 0 0 42px 10px rgba(0, 240, 255, 0.85) !important;
+  animation: winPulse 1.5s infinite alternate !important;
+}
+
+/* 4. Top Theme Buttons: "STARGAZER", "AQUA DRIFT", "ARCTIC DRIFT" */
 .theme-switch-row {
   display: flex;
   gap: 10px;
@@ -29,99 +173,67 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 10px 8px;
+  padding: 11px 10px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.07);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1.5px solid rgba(255, 255, 255, 0.16);
-  color: var(--label-color);
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(14px) saturate(160%);
+  -webkit-backdrop-filter: blur(14px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  color: #dbeafe;
   font-family: inherit;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 800;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
   cursor: pointer;
   outline: none;
   transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
-  transform: translate3d(0, 0, 0);
-  -webkit-transform: translate3d(0, 0, 0);
+  box-shadow: 0 8px 32px rgba(0, 40, 80, 0.4);
 }
 
 .theme-toggle-btn:hover {
-  transform: translate3d(0, -1px, 0);
-  background: rgba(255, 255, 255, 0.14);
-  border-color: rgba(255, 255, 255, 0.35);
+  transform: translate3d(0, -2px, 0);
+  background: rgba(255, 255, 255, 0.22);
+  border-color: rgba(255, 255, 255, 0.5);
+  color: #ffffff;
 }
 
 .theme-toggle-btn.active {
   color: #ffffff;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.25);
+  box-shadow: 0 8px 32px rgba(0, 40, 80, 0.5);
 }
 
-/* Stargazer Active Glow */
-.theme-toggle-btn[data-theme="stargazer"].active {
-  border-color: #a855f7;
-  box-shadow: 0 0 20px rgba(168, 85, 247, 0.6), inset 0 0 8px rgba(168, 85, 247, 0.3);
-}
-
-/* Aqua Drift Active Glow */
 .theme-toggle-btn[data-theme="aqua"].active {
   border-color: #00f0ff;
-  box-shadow: 0 0 20px rgba(0, 240, 255, 0.6), inset 0 0 8px rgba(0, 240, 255, 0.3);
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.7), inset 0 0 10px rgba(0, 240, 255, 0.35);
 }
 
-/* Arctic Drift Active Glow */
+.theme-toggle-btn[data-theme="stargazer"].active {
+  border-color: #c084fc;
+  box-shadow: 0 0 24px rgba(192, 132, 252, 0.7), inset 0 0 10px rgba(192, 132, 252, 0.35);
+}
+
 .theme-toggle-btn[data-theme="arctic"].active {
   border-color: #38bdf8;
-  box-shadow: 0 0 20px rgba(56, 189, 248, 0.6), inset 0 0 8px rgba(56, 189, 248, 0.3);
+  box-shadow: 0 0 24px rgba(56, 189, 248, 0.7), inset 0 0 10px rgba(56, 189, 248, 0.35);
 }
 
-/* Theme Dynamic CSS Variables */
-[data-animated-theme="stargazer"] {
-  --board-bg: rgba(14, 21, 37, 0.88);
-  --cell-bg: rgba(255, 255, 255, 0.04);
-  --body-bg: radial-gradient(ellipse at top, #111827 0%, #090e1a 50%, #030712 100%);
-  --ui-bg: rgba(20, 29, 51, 0.72);
-  --label-color: #94a3b8;
-  --info-color: #c084fc;
-  --board-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 35px rgba(168, 85, 247, 0.2);
+/* Control and booster buttons */
+.icon-btn {
+  border-radius: 16px !important;
 }
 
-[data-animated-theme="aqua"] {
-  --board-bg: rgba(7, 30, 54, 0.82);
-  --cell-bg: rgba(56, 189, 248, 0.06);
-  --body-bg: radial-gradient(ellipse at top, #0c2b4d 0%, #06182e 50%, #020b17 100%);
-  --ui-bg: rgba(10, 44, 82, 0.65);
-  --label-color: #7dd3fc;
-  --info-color: #00f0ff;
-  --board-shadow: 0 20px 50px rgba(2, 11, 23, 0.8), 0 0 35px rgba(0, 240, 255, 0.22);
+.boost-btn {
+  border-radius: 999px !important;
 }
 
-[data-animated-theme="arctic"] {
-  --board-bg: rgba(15, 28, 48, 0.85);
-  --cell-bg: rgba(240, 249, 255, 0.06);
-  --body-bg: radial-gradient(ellipse at top, #1e3a5f 0%, #0f2038 50%, #08111e 100%);
-  --ui-bg: rgba(22, 45, 74, 0.7);
-  --label-color: #bae6fd;
-  --info-color: #38bdf8;
-  --board-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 35px rgba(56, 189, 248, 0.25);
-}
-
-/* Subtle frosted/ice border effect for Arctic Drift */
-[data-animated-theme="arctic"] .board-wrap {
-  border: 1.5px solid rgba(186, 230, 253, 0.35);
-  box-shadow: 0 20px 50px rgba(0,0,0,0.75), 0 0 30px rgba(186, 230, 253, 0.25), inset 0 0 15px rgba(240, 249, 255, 0.1);
-}
-
-[data-animated-theme="arctic"] .score-box,
-[data-animated-theme="arctic"] .stat-box {
-  border: 1px solid rgba(186, 230, 253, 0.3);
-}
-
-@media (max-width: 380px) {
+/* Mobile responsive constraints */
+@media (max-width: 480px) {
   .theme-toggle-btn {
-    padding: 8px 4px;
-    font-size: 11px;
+    padding: 9px 5px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
     gap: 4px;
   }
 }
