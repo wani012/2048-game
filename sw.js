@@ -1,4 +1,4 @@
-const CACHE_NAME = '1024-v6';
+const CACHE_NAME = '1024-v7';
 const ASSETS = ['./', 'index.html', 'manifest.json', 'icon.png'];
 
 self.addEventListener('install', e => {

@@ -68,7 +68,37 @@
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
 
 <style>
-  :root{
+  :root, [data-theme="space"]{
+    --board-bg: rgba(14, 21, 37, 0.88);
+    --cell-bg: rgba(255, 255, 255, 0.04);
+    --text-dark: #e2e8f0;
+    --body-bg: radial-gradient(ellipse at top, #111827 0%, #090e1a 50%, #030712 100%);
+    --ui-bg: rgba(20, 29, 51, 0.72);
+    --btn-bg: rgba(30, 41, 69, 0.8);
+    --btn-hover: rgba(45, 60, 98, 0.95);
+    --btn-active: #0f172a;
+    --label-color: #94a3b8;
+    --info-color: #38bdf8;
+    --card-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    --tile-shadow: 0 4px 16px rgba(0,0,0,0.4);
+    --board-shadow: 0 20px 50px rgba(0,0,0,0.7), 0 0 35px rgba(56, 189, 248, 0.12);
+  }
+  [data-theme="glass"]{
+    --board-bg: rgba(255, 255, 255, 0.12);
+    --cell-bg: rgba(255, 255, 255, 0.08);
+    --text-dark: #f8fafc;
+    --body-bg: radial-gradient(circle at top, #334155 0%, #1e293b 50%, #0f172a 100%);
+    --ui-bg: rgba(255, 255, 255, 0.12);
+    --btn-bg: rgba(255, 255, 255, 0.18);
+    --btn-hover: rgba(255, 255, 255, 0.28);
+    --btn-active: rgba(255, 255, 255, 0.1);
+    --label-color: #cbd5e1;
+    --info-color: #38bdf8;
+    --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+    --tile-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.25);
+    --board-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4), inset 0 0 0 1px rgba(255,255,255,0.15);
+  }
+  [data-theme="classic"]{
     --board-bg: #bbada0;
     --cell-bg: rgba(238, 228, 218, 0.35);
     --text-dark: #4a4036;
@@ -169,9 +199,23 @@
     color:var(--text-dark); padding:16px;
     touch-action:pan-y; user-select:none;
     transition:background 0.4s ease, color 0.4s ease;
+    position:relative;
+  }
+  /* Cosmic Dust & Starry Dust Overlay */
+  body::before{
+    content:""; position:fixed; inset:0; pointer-events:none; z-index:0;
+    background-image: 
+      radial-gradient(1.2px 1.2px at 25px 30px, #ffffff, rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 85px 160px, rgba(255,255,255,0.85), rgba(0,0,0,0)),
+      radial-gradient(1px 1px at 190px 70px, rgba(56,189,248,0.9), rgba(0,0,0,0)),
+      radial-gradient(2px 2px at 250px 320px, rgba(236,72,153,0.7), rgba(0,0,0,0)),
+      radial-gradient(1.2px 1.2px at 340px 210px, #ffffff, rgba(0,0,0,0)),
+      radial-gradient(1.5px 1.5px at 410px 390px, rgba(56,189,248,0.85), rgba(0,0,0,0));
+    background-repeat:repeat; background-size:420px 420px;
+    opacity:0.45;
   }
 
-  .container{ width:100%; max-width:460px; }
+  .container{ width:100%; max-width:460px; position:relative; z-index:1; }
 
   /* ---- HEADER ---- */
   .header{
@@ -179,90 +223,132 @@
     margin-bottom:14px;
   }
   h1.title{
-    font-size:58px; font-weight:900; margin:0;
-    background:linear-gradient(135deg, var(--text-dark) 20%, #edc53f 100%);
+    font-size:54px; font-weight:900; margin:0;
+    background:linear-gradient(135deg, #ffffff 10%, #fbbf24 60%, #f59e0b 100%);
     -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-    letter-spacing:-1px; line-height:1; filter:drop-shadow(0 2px 8px rgba(0,0,0,0.06));
+    letter-spacing:-1px; line-height:1; filter:drop-shadow(0 2px 12px rgba(251,191,36,0.35));
   }
 
   .scores{ display:flex; gap:10px; }
   .score-box{
-    background:var(--ui-bg); border-radius:12px; padding:8px 18px;
-    text-align:center; min-width:72px; position:relative;
-    box-shadow:var(--card-shadow); border:1px solid rgba(255,255,255,0.18);
+    background:rgba(255,255,255,0.08); border-radius:14px; padding:8px 16px;
+    text-align:center; min-width:74px; position:relative;
+    box-shadow:var(--card-shadow); border:1px solid rgba(255,255,255,0.16);
     backdrop-filter:blur(10px);
   }
   .score-label{ font-size:10px; font-weight:800; color:var(--label-color); letter-spacing:1px; }
-  .score-value{ font-size:22px; font-weight:900; color:#fff; }
+  .score-value{ font-size:20px; font-weight:900; color:#fff; }
   .score-addition{
     position:absolute; right:10px; top:-4px; font-size:16px; font-weight:900;
-    color:#27ae60; animation:scoreFloat 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; pointer-events:none;
-    text-shadow:0 2px 4px rgba(0,0,0,0.15);
+    color:#00f0ff; animation:scoreFloat 0.6s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards; pointer-events:none;
+    text-shadow:0 0 10px #00f0ff;
   }
   @keyframes scoreFloat{ 0%{opacity:1;transform:translateY(0) scale(1.1);} 100%{opacity:0;transform:translateY(-38px) scale(1.3);} }
 
   /* ---- TAGLINE ---- */
-  .tagline{ font-size:14px; color:var(--info-color); margin-bottom:14px; font-weight:600; }
+  .tagline{ font-size:13px; color:var(--info-color); margin-bottom:12px; font-weight:600; }
 
   /* ---- STATS ---- */
   .stats-row{
     display:flex; gap:10px; margin-bottom:14px;
   }
   .stat-box{
-    flex:1; background:var(--ui-bg); border-radius:12px;
-    padding:9px 12px; text-align:center; box-shadow:var(--card-shadow);
-    border:1px solid rgba(255,255,255,0.15); backdrop-filter:blur(8px);
+    flex:1; background:rgba(255,255,255,0.07); border-radius:14px;
+    padding:8px 12px; text-align:center; box-shadow:var(--card-shadow);
+    border:1px solid rgba(255,255,255,0.14); backdrop-filter:blur(8px);
   }
   .stat-label{ font-size:10px; font-weight:800; color:var(--label-color); letter-spacing:0.8px; text-transform:uppercase; }
-  .stat-value{ font-size:20px; font-weight:900; color:#fff; margin-top:2px; font-variant-numeric:tabular-nums; }
+  .stat-value{ font-size:18px; font-weight:900; color:#fff; margin-top:2px; font-variant-numeric:tabular-nums; }
 
   /* ---- THEME PILLS (always visible) ---- */
   .theme-row{
     display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; align-items:center;
   }
   .theme-label{ font-size:11px; font-weight:800; color:var(--info-color); align-self:center; margin-right:4px; text-transform:uppercase; letter-spacing:1px; }
-  /* Theme pills - color circle only, no text */
   .theme-pill{
     width:32px; height:32px; border-radius:50%; border:3px solid transparent;
     cursor:pointer; transition:transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s;
-    position:relative; box-shadow:0 3px 8px rgba(0,0,0,0.15);
+    position:relative; box-shadow:0 3px 8px rgba(0,0,0,0.25);
   }
   .theme-pill:hover{ transform:scale(1.2); }
-  .theme-pill.active{ border-color:#fff; box-shadow:0 0 0 3px rgba(0,0,0,0.35), 0 4px 12px rgba(0,0,0,0.25); }
+  .theme-pill.active{ border-color:#fff; box-shadow:0 0 0 3px rgba(56,189,248,0.5), 0 4px 14px rgba(0,0,0,0.4); }
+  .theme-pill[data-t="space"]{
+    background:radial-gradient(circle at 35% 35%, #c084fc 0%, #4338ca 45%, #030712 100%);
+    box-shadow:0 0 12px rgba(192, 132, 252, 0.75), inset 0 0 5px #fff;
+    border:2px solid #a855f7;
+  }
+  .theme-pill[data-t="glass"]{
+    background:rgba(255, 255, 255, 0.22);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border:2px solid rgba(255, 255, 255, 0.6);
+    box-shadow:0 4px 12px rgba(255, 255, 255, 0.25);
+  }
   .theme-pill[data-t="classic"]{ background:linear-gradient(135deg, #bbada0, #8f7a66); }
   .theme-pill[data-t="dark"]{ background:linear-gradient(135deg, #3e4451, #1e2227); }
   .theme-pill[data-t="ocean"]{ background:linear-gradient(135deg, #0284c7, #133b5c); }
   .theme-pill[data-t="forest"]{ background:linear-gradient(135deg, #10b981, #143524); }
   .theme-pill[data-t="purple"]{ background:linear-gradient(135deg, #a855f7, #3b185f); }
   .theme-pill[data-t="cyberpunk"]{ background:linear-gradient(135deg, #ff007f, #00f0ff); }
-  /* Tooltip on hover */
   .theme-pill::after{
     content:attr(title); position:absolute; bottom:-28px; left:50%; transform:translateX(-50%);
     background:rgba(0,0,0,0.85); color:#fff; font-size:10px; font-weight:700; padding:3px 8px;
     border-radius:6px; white-space:nowrap; pointer-events:none;
-    opacity:0; transition:opacity 0.2s; backdrop-filter:blur(4px);
+    opacity:0; transition:opacity 0.2s; backdrop-filter:blur(4px); z-index:10;
   }
   .theme-pill:hover::after{ opacity:1; }
 
-  /* ---- ACTION BUTTONS & BOOSTERS ICON DOCK (STYLE 3) ---- */
+  /* ---- MODE PILLS WITH SOFT NEON OUTLINES ---- */
+  .mode-row{ display:flex; gap:8px; margin-bottom:14px; }
+  .mode-btn{
+    flex:1; padding:10px 8px; border-radius:999px; background:rgba(255,255,255,0.06);
+    color:var(--label-color); font-size:12px; font-weight:800; cursor:pointer;
+    transition:all .2s ease; text-align:center;
+    border:1.5px solid rgba(255,255,255,0.14);
+    backdrop-filter:blur(8px); font-family:inherit;
+    box-shadow:0 2px 8px rgba(0,0,0,0.15);
+  }
+  .mode-btn:hover{ transform:translateY(-1px); border-color:rgba(255,255,255,0.35); }
+  .mode-btn.active{
+    background:rgba(255,255,255,0.12); color:#fff;
+    border-color:#38bdf8;
+    box-shadow:0 0 14px rgba(56, 189, 248, 0.5);
+  }
+  .mode-btn[data-mode="space"].active{
+    border-color:#ec4899;
+    box-shadow:0 0 16px rgba(236, 72, 153, 0.55);
+  }
+  .mode-btn[data-mode="blitz"].active{
+    border-color:#fb923c;
+    box-shadow:0 0 16px rgba(251, 146, 60, 0.55);
+  }
+
+  /* ---- UNIFORM SEMI-TRANSLUCENT SQUARE ACTION BUTTONS ---- */
   .action-row{
     display:flex; gap:10px; margin-bottom:14px; justify-content:space-between;
   }
   .icon-btn{
-    flex:1; height:48px; max-width:68px; background:var(--btn-bg); border:none; border-radius:14px;
-    color:#fff; font-size:20px; font-family:inherit; cursor:pointer;
+    flex:1; height:50px; background:rgba(255,255,255,0.08); border-radius:14px;
+    color:#fff; font-size:22px; font-family:inherit; cursor:pointer;
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     transition:transform .18s cubic-bezier(0.34, 1.56, 0.64, 1), background .2s, box-shadow .2s;
-    box-shadow:0 4px 14px rgba(0,0,0,0.12); border:1px solid rgba(255,255,255,0.15);
-    position:relative; backdrop-filter:blur(6px);
+    box-shadow:0 4px 14px rgba(0,0,0,0.2); border:1.5px solid rgba(255,255,255,0.15);
+    position:relative; backdrop-filter:blur(8px);
   }
-  .icon-btn:hover{ background:var(--btn-hover); transform:translateY(-3px) scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
-  .icon-btn:active{ transform:scale(0.92); }
-  .icon-btn:disabled{ opacity:0.32; cursor:not-allowed; transform:none; }
-  .icon-btn.share-icon{ background:#25D366; }
-  .icon-btn.share-icon:hover{ background:#20bd5a; }
-
-  /* Interactive Tooltip (Hover & Tap) */
+  .icon-btn:hover{
+    background:rgba(255,255,255,0.16); transform:translateY(-2px);
+    box-shadow:0 0 16px rgba(255,255,255,0.25);
+  }
+  .icon-btn:active{ transform:scale(0.94); }
+  .icon-btn:disabled{ opacity:0.3; cursor:not-allowed; transform:none; }
+  .icon-btn.share-icon{
+    background:rgba(255, 107, 107, 0.16);
+    border-color:rgba(255, 107, 107, 0.45);
+    box-shadow:0 0 16px rgba(255, 107, 107, 0.35);
+  }
+  .icon-btn.share-icon:hover{
+    background:rgba(255, 107, 107, 0.28);
+    box-shadow:0 0 22px rgba(255, 107, 107, 0.65);
+  }
   .icon-btn[data-tip]::after{
     content:attr(data-tip); position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
     background:rgba(0,0,0,0.85); color:#fff; font-size:10px; font-weight:800; padding:3px 8px;
@@ -270,6 +356,42 @@
     opacity:0; transition:opacity 0.2s, transform 0.2s; z-index:100; backdrop-filter:blur(4px);
   }
   .icon-btn:hover[data-tip]::after{ opacity:1; transform:translateX(-50%) translateY(2px); }
+
+  /* ---- POWER-UP ACTION PILLS WITH BRIGHT CYAN FLOATING COUNTER BADGES ---- */
+  .boost-row{ display:flex; gap:12px; margin-bottom:14px; }
+  .boost-btn{
+    flex:1; height:46px; background:rgba(255,255,255,0.07);
+    border:1.5px solid rgba(0, 240, 255, 0.35); border-radius:999px;
+    color:#fff; font-size:14px; font-weight:800; padding:0 16px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    transition:transform .15s, background .15s, box-shadow .15s;
+    box-shadow:0 0 12px rgba(0, 240, 255, 0.18); font-family:inherit; position:relative;
+    backdrop-filter:blur(10px);
+  }
+  .boost-btn:hover{
+    background:rgba(0, 240, 255, 0.14); transform:translateY(-2px);
+    box-shadow:0 0 20px rgba(0, 240, 255, 0.45);
+    border-color:#00f0ff;
+  }
+  .boost-btn:active{ transform:scale(0.96); }
+  .boost-btn.active{ background:#e74c3c; animation:pulse 0.8s infinite alternate; }
+  @keyframes pulse{ from{box-shadow:0 0 6px #e74c3c;} to{box-shadow:0 0 20px #e74c3c;} }
+  .boost-badge{
+    background:#00f0ff; color:#030712; padding:2px 8px; border-radius:999px;
+    font-size:11px; font-weight:900;
+    box-shadow:0 0 12px #00f0ff, inset 0 1px 2px rgba(255,255,255,0.8);
+  }
+  .boost-btn[data-tip]::after{
+    content:attr(data-tip); position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.85); color:#fff; font-size:10px; font-weight:800; padding:3px 8px;
+    border-radius:6px; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity 0.2s, transform 0.2s; z-index:100; backdrop-filter:blur(4px);
+  }
+  .boost-btn:hover[data-tip]::after{ opacity:1; transform:translateX(-50%) translateY(2px); }
+
+  /* Hammer selection target */
+  .tile.hammer-target{ cursor:crosshair; animation:shake 0.3s infinite; }
+  @keyframes shake{ 0%{transform:rotate(0deg);} 25%{transform:rotate(-4deg);} 75%{transform:rotate(4deg);} 100%{transform:rotate(0deg);} }
 
   /* Floating Toast Feedback on Icon Tap */
   .toast-msg{
@@ -285,47 +407,105 @@
   /* ---- BOARD ---- */
   .board-wrap{
     position:relative; width:100%; aspect-ratio:1/1;
-    background:var(--board-bg); border-radius:18px; padding:12px;
+    background:var(--board-bg); border-radius:22px; padding:12px;
     transition:background 0.3s; box-shadow:var(--board-shadow);
-    border:1px solid rgba(255,255,255,0.15);
+    border:1.5px solid rgba(255,255,255,0.15);
     touch-action:none; -webkit-user-select:none;
+    backdrop-filter:blur(10px);
   }
   .grid-bg{
     position:absolute; inset:12px; display:grid;
     grid-template-columns:repeat(4,1fr); grid-template-rows:repeat(4,1fr); gap:12px;
   }
   .cell-bg{
-    background:var(--cell-bg); border-radius:12px; transition:background 0.3s;
-    box-shadow:inset 0 2px 6px rgba(0,0,0,0.08);
+    background:var(--cell-bg); border-radius:14px; transition:background 0.3s;
+    box-shadow:inset 0 2px 6px rgba(0,0,0,0.15);
   }
   .tiles-layer{ position:absolute; inset:12px; }
 
   .tile{
     position:absolute; display:flex; align-items:center; justify-content:center;
-    border-radius:12px; font-weight:800; background:#eee4da;
+    border-radius:14px; font-weight:800;
     transition:left .12s cubic-bezier(0.25, 1, 0.5, 1), top .12s cubic-bezier(0.25, 1, 0.5, 1);
   }
   .tile-inner{
     width:100%; height:100%; display:flex; align-items:center; justify-content:center;
-    border-radius:12px; animation:pop-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+    border-radius:14px; animation:pop-in 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
     box-shadow:var(--tile-shadow); letter-spacing:-0.5px;
   }
   @keyframes pop-in{ 0%{transform:scale(0); opacity:0;} 70%{transform:scale(1.12);} 100%{transform:scale(1); opacity:1;} }
 
-  /* Vibrant Aesthetic Gradient Tiles */
-  .v1{ background:linear-gradient(135deg, #e8dfd8 0%, #d8cbbf 100%); color:#776e65; }
-  .v2{ background:linear-gradient(135deg, #f7ede2 0%, #ebe0d3 100%); color:#776e65; }
-  .v4{ background:linear-gradient(135deg, #fbe8cc 0%, #eddcc3 100%); color:#776e65; }
-  .v8{ background:linear-gradient(135deg, #ff9f43 0%, #ee5253 100%); color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.15); }
-  .v16{ background:linear-gradient(135deg, #ff6b6b 0%, #ee5253 100%); color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.2); }
-  .v32{ background:linear-gradient(135deg, #ff5252 0%, #ff1744 100%); color:#fff; text-shadow:0 1px 2px rgba(0,0,0,0.2); }
-  .v64{ background:linear-gradient(135deg, #ff3838 0%, #c23616 100%); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.25); }
-  .v128{ background:linear-gradient(135deg, #ffd32a 0%, #ffbb00 100%); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.2); box-shadow:0 0 16px rgba(255,211,42,0.4); }
-  .v256{ background:linear-gradient(135deg, #feca57 0%, #ff9f43 100%); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.2); box-shadow:0 0 20px rgba(254,202,87,0.45); }
-  .v512{ background:linear-gradient(135deg, #48dbfb 0%, #0abde3 100%); color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.25); box-shadow:0 0 24px rgba(72,219,251,0.5); }
-  .v1024{ background:linear-gradient(135deg, #ffd700 0%, #ffaa00 50%, #ff7700 100%); color:#fff; box-shadow:0 0 35px 8px rgba(255,215,0,0.65); text-shadow:0 2px 4px rgba(0,0,0,0.3); animation:winPulse 1.5s infinite alternate; }
-  @keyframes winPulse{ from{box-shadow:0 0 25px rgba(255,215,0,0.6);} to{box-shadow:0 0 45px rgba(255,170,0,0.85); transform:scale(1.02);} }
-  .v-super{ background:linear-gradient(135deg, #2c2c54 0%, #40407a 100%); color:#fff; box-shadow:0 0 25px rgba(64,64,122,0.6); }
+  /* Low-tier tiles (1, 2, 4) in minimalist clean frosted pastel shades */
+  .v1{
+    background:linear-gradient(135deg, #d8e8f8 0%, #c4ddf5 100%);
+    color:#1e293b; border:1px solid rgba(255,255,255,0.7);
+    box-shadow:0 4px 12px rgba(196,221,245,0.3);
+  }
+  .v2{
+    background:linear-gradient(135deg, #d1f4e0 0%, #bbf0d0 100%);
+    color:#1e293b; border:1px solid rgba(255,255,255,0.7);
+    box-shadow:0 4px 12px rgba(187,240,208,0.3);
+  }
+  .v4{
+    background:linear-gradient(135deg, #e3defe 0%, #d2cafc 100%);
+    color:#1e293b; border:1px solid rgba(255,255,255,0.7);
+    box-shadow:0 4px 12px rgba(210,202,252,0.3);
+  }
+  /* High-tier tiles (8, 16+) radiating vibrant warm orange and pink energy with electric neon glow borders */
+  .v8{
+    background:linear-gradient(135deg, #ff8058 0%, #ff5277 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 20px rgba(255, 107, 107, 0.7);
+    border:2px solid rgba(255, 210, 190, 0.9);
+  }
+  .v16{
+    background:linear-gradient(135deg, #ff4785 0%, #f43f5e 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 24px rgba(244, 63, 94, 0.75);
+    border:2px solid rgba(255, 190, 220, 0.9);
+  }
+  .v32{
+    background:linear-gradient(135deg, #a855f7 0%, #7c3aed 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 24px rgba(168, 85, 247, 0.75);
+    border:2px solid rgba(233, 213, 255, 0.85);
+  }
+  .v64{
+    background:linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 26px rgba(6, 182, 212, 0.8);
+    border:2px solid rgba(165, 243, 252, 0.9);
+  }
+  .v128{
+    background:linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 26px rgba(16, 185, 129, 0.8);
+    border:2px solid rgba(167, 243, 208, 0.9);
+  }
+  .v256{
+    background:linear-gradient(135deg, #f59e0b 0%, #ea580c 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 28px rgba(245, 158, 11, 0.85);
+    border:2px solid rgba(254, 240, 138, 0.9);
+  }
+  .v512{
+    background:linear-gradient(135deg, #6366f1 0%, #4338ca 100%);
+    color:#fff; text-shadow:0 1px 3px rgba(0,0,0,0.35);
+    box-shadow:0 0 30px rgba(99, 102, 241, 0.85);
+    border:2px solid rgba(199, 210, 254, 0.9);
+  }
+  .v1024{
+    background:linear-gradient(135deg, #fbbf24 0%, #f59e0b 40%, #ec4899 100%);
+    color:#fff; text-shadow:0 2px 4px rgba(0,0,0,0.4);
+    box-shadow:0 0 38px 8px rgba(251, 191, 36, 0.9);
+    border:2.5px solid #ffffff;
+    animation:winPulse 1.5s infinite alternate;
+  }
+  .v-super{
+    background:linear-gradient(135deg, #3b0764 0%, #6b21a8 100%);
+    color:#fff; box-shadow:0 0 30px rgba(168, 85, 247, 0.8);
+    border:2px solid #c084fc;
+  }
 
   .board-wrap[data-fontscale="lg"] .tile-inner{ font-size:clamp(22px,7.5vw,52px); }
   .board-wrap[data-fontscale="md"] .tile-inner{ font-size:clamp(16px,6vw,38px); }
@@ -333,70 +513,47 @@
 
   /* ---- OVERLAYS ---- */
   .overlay{
-    position:absolute; inset:0; background:rgba(238,228,218,0.85); border-radius:18px;
+    position:absolute; inset:0; background:rgba(15,23,42,0.85); border-radius:22px;
     display:none; flex-direction:column; align-items:center; justify-content:center;
     text-align:center; z-index:50; animation:fadeIn 0.35s ease; padding:24px;
-    backdrop-filter:blur(8px);
+    backdrop-filter:blur(10px);
   }
   .overlay.show{ display:flex; }
   @keyframes fadeIn{ from{opacity:0;} to{opacity:1;} }
-  .overlay-title{ font-size:46px; font-weight:900; color:var(--text-dark); margin-bottom:6px; letter-spacing:-1px; }
-  .overlay-info{ font-size:14px; font-weight:700; color:var(--text-dark); margin-bottom:16px; opacity:0.85; }
-  .overlay.win{ background:rgba(237,194,46,0.75); }
-  .overlay.win .overlay-title{ color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.25); }
+  .overlay-title{ font-size:46px; font-weight:900; color:#fff; margin-bottom:6px; letter-spacing:-1px; text-shadow:0 0 20px rgba(56,189,248,0.5); }
+  .overlay-info{ font-size:14px; font-weight:700; color:#cbd5e1; margin-bottom:16px; opacity:0.9; }
+  .overlay.win{ background:rgba(251,191,36,0.85); }
+  .overlay.win .overlay-title{ color:#fff; text-shadow:0 2px 10px rgba(0,0,0,0.3); }
   .overlay.win .overlay-info{ color:#fff; }
 
   .overlay-btns{ display:flex; gap:10px; flex-wrap:wrap; justify-content:center; margin-bottom:12px; }
   .overlay-btn{
     background:var(--btn-bg); border:none; border-radius:12px; color:#fff;
     font-size:14px; font-weight:800; padding:12px 20px; cursor:pointer; transition:transform .15s, background .15s;
-    box-shadow:0 4px 12px rgba(0,0,0,0.15); font-family:inherit;
+    box-shadow:0 4px 12px rgba(0,0,0,0.25); font-family:inherit;
   }
   .overlay-btn:hover{ background:var(--btn-hover); transform:translateY(-2px); }
   .overlay-btn:disabled{ opacity:0.5; cursor:default; transform:none; }
   .overlay-btn.share-btn{
-    background:#25D366; color:#fff; display:inline-flex; align-items:center; gap:8px;
-    box-shadow:0 4px 14px rgba(37,211,102,0.4);
+    background:linear-gradient(135deg, #ec4899 0%, #f43f5e 100%); color:#fff; display:inline-flex; align-items:center; gap:8px;
+    box-shadow:0 4px 18px rgba(236,72,153,0.5);
   }
-  .overlay-btn.share-btn:hover{ background:#20bd5a; }
+  .overlay-btn.share-btn:hover{ background:linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); }
 
-  /* ---- MODE TABS & POWERUPS ---- */
-  .mode-row{ display:flex; gap:8px; margin-bottom:12px; }
-  .mode-btn{
-    flex:1; padding:9px 6px; border:none; border-radius:10px; background:var(--ui-bg);
-    color:var(--label-color); font-size:12px; font-weight:800; cursor:pointer;
-    transition:background .2s, color .2s, transform .15s; text-align:center;
-    box-shadow:0 3px 8px rgba(0,0,0,0.06); font-family:inherit;
+  /* ---- FIGMA QUALITY 3-COLUMN TUTORIAL CARD ---- */
+  .tutorial-card{
+    margin-top:14px; background:rgba(255,255,255,0.06); border-radius:18px;
+    padding:16px 14px; display:flex; align-items:center; justify-content:space-around;
+    border:1.5px solid rgba(255,255,255,0.12); backdrop-filter:blur(10px);
+    box-shadow:var(--card-shadow); text-align:center;
   }
-  .mode-btn:hover{ transform:translateY(-1px); }
-  .mode-btn.active{ background:var(--btn-bg); color:#fff; box-shadow:0 4px 12px rgba(0,0,0,0.16); }
-  
-  .boost-row{ display:flex; gap:10px; margin-bottom:14px; }
-  .boost-btn{
-    flex:1; height:46px; background:var(--ui-bg); border:1px solid rgba(255,255,255,0.2); border-radius:14px;
-    color:#fff; font-size:15px; font-weight:800; padding:0 12px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .15s, background .15s, box-shadow .15s;
-    box-shadow:0 4px 12px rgba(0,0,0,0.08); font-family:inherit; position:relative;
-  }
-  .boost-btn:hover{ background:var(--btn-hover); transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.15); }
-  .boost-btn:active{ transform:scale(0.95); }
-  .boost-btn.active{ background:#e74c3c; animation:pulse 0.8s infinite alternate; }
-  @keyframes pulse{ from{box-shadow:0 0 6px #e74c3c;} to{box-shadow:0 0 20px #e74c3c;} }
-  .boost-badge{
-    background:rgba(0,0,0,0.4); padding:2px 8px; border-radius:12px; font-size:11px; font-weight:900;
-    box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);
-  }
-  .boost-btn[data-tip]::after{
-    content:attr(data-tip); position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
-    background:rgba(0,0,0,0.85); color:#fff; font-size:10px; font-weight:800; padding:3px 8px;
-    border-radius:6px; white-space:nowrap; pointer-events:none;
-    opacity:0; transition:opacity 0.2s, transform 0.2s; z-index:100; backdrop-filter:blur(4px);
-  }
-  .boost-btn:hover[data-tip]::after{ opacity:1; transform:translateX(-50%) translateY(2px); }
-
-  /* Hammer selection target */
-  .tile.hammer-target{ cursor:crosshair; animation:shake 0.3s infinite; }
-  @keyframes shake{ 0%{transform:rotate(0deg);} 25%{transform:rotate(-4deg);} 75%{transform:rotate(4deg);} 100%{transform:rotate(0deg);} }
+  .tut-col{ flex:1; display:flex; flex-direction:column; align-items:center; gap:6px; }
+  .tut-divider{ width:1px; height:36px; background:rgba(255,255,255,0.12); }
+  .tut-icon-wrap{ font-size:22px; line-height:1; }
+  .tut-icon-wrap.zap{ color:#38bdf8; filter:drop-shadow(0 0 8px #38bdf8); }
+  .tut-badge-1024{ font-size:16px; font-weight:900; color:#fbbf24; text-shadow:0 0 10px rgba(251,191,36,0.6); }
+  .tut-text strong{ display:block; font-size:11px; font-weight:800; color:#fff; letter-spacing:0.5px; }
+  .tut-text span{ font-size:10px; font-weight:700; color:var(--label-color); letter-spacing:0.3px; opacity:0.85; }
 
 
   /* ---- FIRE HUB MODAL (Add to Home Screen & Share) ---- */
@@ -535,21 +692,24 @@
     </div>
   </div>
 
-  <!-- Theme selector - color circles, no text -->
+  <!-- Theme selector - color circles with Space & Frosted Glass -->
   <div class="theme-row">
     <div class="theme-label">Theme:</div>
-    <div class="theme-pill active" data-t="classic" title="Classic"></div>
-    <div class="theme-pill" data-t="dark" title="Dark"></div>
-    <div class="theme-pill" data-t="ocean" title="Ocean"></div>
-    <div class="theme-pill" data-t="forest" title="Forest"></div>
-    <div class="theme-pill" data-t="purple" title="Purple"></div>
-    <div class="theme-pill" data-t="cyberpunk" title="Cyberpunk"></div>
+    <div class="theme-pill active" data-t="space" title="Cosmic Galaxy 🌌"></div>
+    <div class="theme-pill" data-t="glass" title="Frosted Glass 🪟"></div>
+    <div class="theme-pill" data-t="classic" title="Classic Warm ☕"></div>
+    <div class="theme-pill" data-t="dark" title="Dark Slate 🌑"></div>
+    <div class="theme-pill" data-t="ocean" title="Ocean Blue 🌊"></div>
+    <div class="theme-pill" data-t="forest" title="Emerald Forest 🌲"></div>
+    <div class="theme-pill" data-t="purple" title="Neon Purple 🔮"></div>
+    <div class="theme-pill" data-t="cyberpunk" title="Cyberpunk ⚡"></div>
   </div>
 
-  <!-- Mode Selector -->
+  <!-- Mode Selector with soft neon outlines -->
   <div class="mode-row">
-    <button class="mode-btn active" data-mode="classic" id="modeClassic">Classic</button>
-    <button class="mode-btn" data-mode="blitz" id="modeBlitz">⏱️ Blitz 60s</button>
+    <button class="mode-btn" data-mode="classic" id="modeClassic">Classic</button>
+    <button class="mode-btn" data-mode="blitz" id="modeBlitz">⏱️ Blitz</button>
+    <button class="mode-btn active" data-mode="space" id="modeSpace">🚀 Space Explorer</button>
     <button class="mode-btn" data-mode="daily" id="modeDaily">📅 Daily</button>
   </div>
 
@@ -561,13 +721,13 @@
     <button class="icon-btn share-icon" id="topShareBtn" data-tip="Challenge Friend" title="Challenge a Friend & Install App">&#128293;</button>
   </div>
 
-  <!-- Power-Up Boosters Row (Style 3 Icon Badges) -->
+  <!-- Power-Up Boosters Row (Style 3 Icon Badges with Neon Cyan) -->
   <div class="boost-row">
     <button class="boost-btn" id="hammerBtn" data-tip="Smash Tile" title="Smash any tile">
-      🔨 <span style="font-size:12px;font-weight:800;">Smash</span> <span class="boost-badge" id="hammerCount">2</span>
+      🔨 <span style="font-size:13px;font-weight:800;">Smash</span> <span class="boost-badge" id="hammerCount">x2</span>
     </button>
     <button class="boost-btn" id="shuffleBtn" data-tip="Shuffle Board" title="Scramble all tiles">
-      🔀 <span style="font-size:12px;font-weight:800;">Shuffle</span> <span class="boost-badge" id="shuffleCount">1</span>
+      🔀 <span style="font-size:13px;font-weight:800;">Shuffle</span> <span class="boost-badge" id="shuffleCount">x1</span>
     </button>
   </div>
 
@@ -606,10 +766,31 @@
     </div>
   </div>
 
-  <!-- How to play -->
-  <div class="how-to">
-    <strong>HOW TO PLAY:</strong> Use <strong>Arrow keys</strong>, <strong>WASD</strong>, or <strong>Swipe</strong> to move the tiles.
-    Start with <strong>1</strong>, combine identical numbers (1+1=2, 2+2=4, 4+4=8...) to reach the elusive <strong>1024 tile!</strong>
+  <!-- Modern 3-Column Tutorial Card (Figma Quality) -->
+  <div class="tutorial-card">
+    <div class="tut-col">
+      <div class="tut-icon-wrap">⚏</div>
+      <div class="tut-text">
+        <strong>MATCH TILES</strong>
+        <span>TO MERGE</span>
+      </div>
+    </div>
+    <div class="tut-divider"></div>
+    <div class="tut-col">
+      <div class="tut-badge-1024">1024!</div>
+      <div class="tut-text">
+        <strong>REACH</strong>
+        <span>1024!</span>
+      </div>
+    </div>
+    <div class="tut-divider"></div>
+    <div class="tut-col">
+      <div class="tut-icon-wrap zap">⚡</div>
+      <div class="tut-text">
+        <strong>USE</strong>
+        <span>POWER-UPS!</span>
+      </div>
+    </div>
   </div>
 
   <!-- Leaderboard always visible -->
@@ -681,7 +862,7 @@
   const lbList=$("lbList"), toastEl=$("toastMsg");
   const hammerBtn=$("hammerBtn"), shuffleBtn=$("shuffleBtn");
   const hammerCountEl=$("hammerCount"), shuffleCountEl=$("shuffleCount");
-  const modeClassic=$("modeClassic"), modeBlitz=$("modeBlitz"), modeDaily=$("modeDaily");
+  const modeClassic=$("modeClassic"), modeBlitz=$("modeBlitz"), modeSpace=$("modeSpace"), modeDaily=$("modeDaily");
   const fireModalOverlay=$("fireModalOverlay"), closeFireModal=$("closeFireModal");
   const fireInstallBtn=$("fireInstallBtn"), fireShareBtn=$("fireShareBtn"), fireCopyBtn=$("fireCopyBtn");
   let deferredPrompt;
@@ -739,10 +920,10 @@
   });
 
   /* ------ THEME ------ */
-  let theme=localStorage.getItem(K_THEME)||"classic";
+  let theme=localStorage.getItem(K_THEME)||"space";
   function applyTheme(t){
     theme=t;
-    document.body.dataset.theme=(t==="classic")?"":t;
+    document.body.dataset.theme=t;
     localStorage.setItem(K_THEME,t);
     document.querySelectorAll(".theme-pill").forEach(p=>p.classList.toggle("active",p.dataset.t===t));
   }
@@ -856,8 +1037,8 @@
     if(shuffleBtn){
       shuffleBtn.disabled=false;
     }
-    if(hammerCountEl) hammerCountEl.textContent=hammerCount;
-    if(shuffleCountEl) shuffleCountEl.textContent=shuffleCount;
+    if(hammerCountEl) hammerCountEl.textContent="x"+hammerCount;
+    if(shuffleCountEl) shuffleCountEl.textContent="x"+shuffleCount;
     if(gameMode === "daily"){
       dailyRand = getDailySeed(); // reset daily sequence
     }
@@ -905,7 +1086,7 @@
         hammerActive = false;
         hammerBtn.classList.remove("active");
         hammerCount--;
-        hammerCountEl.textContent = hammerCount;
+        hammerCountEl.textContent = "x" + hammerCount;
         if(hammerCount <= 0) hammerBtn.disabled = true;
         flashThunder();
         beep(150, "square", 0.1, 0.2);
@@ -1124,7 +1305,7 @@
     let idx = 0;
     for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]) board[r][c] = vals[idx++];
     shuffleCount--;
-    shuffleCountEl.textContent = shuffleCount;
+    shuffleCountEl.textContent = "x" + shuffleCount;
     if(shuffleCount <= 0) shuffleBtn.disabled = true;
     flashThunder();
     sndMerge();
@@ -1134,12 +1315,19 @@
 
   function setGameMode(m){
     gameMode = m;
-    [modeClassic, modeBlitz, modeDaily].forEach(b=>b.classList.toggle("active", b.dataset.mode===m));
+    [modeClassic, modeBlitz, modeSpace, modeDaily].forEach(b=>{
+      if(b) b.classList.toggle("active", b.dataset.mode===m);
+    });
+    if(m === "space"){
+      applyTheme("space");
+      showToast("🚀 Space Explorer Mode Active!");
+    }
     newGame();
   }
-  modeClassic.addEventListener("click",()=>setGameMode("classic"));
-  modeBlitz.addEventListener("click",()=>setGameMode("blitz"));
-  modeDaily.addEventListener("click",()=>setGameMode("daily"));
+  if(modeClassic) modeClassic.addEventListener("click",()=>setGameMode("classic"));
+  if(modeBlitz) modeBlitz.addEventListener("click",()=>setGameMode("blitz"));
+  if(modeSpace) modeSpace.addEventListener("click",()=>setGameMode("space"));
+  if(modeDaily) modeDaily.addEventListener("click",()=>setGameMode("daily"));
 
   /* ------ PWA SERVICE WORKER & INSTALL PROMPT ------ */
   window.addEventListener("beforeinstallprompt", e => {
