@@ -398,17 +398,6 @@
   .tile.hammer-target{ cursor:crosshair; animation:shake 0.3s infinite; }
   @keyframes shake{ 0%{transform:rotate(0deg);} 25%{transform:rotate(-4deg);} 75%{transform:rotate(4deg);} 100%{transform:rotate(0deg);} }
 
-  /* PWA Install Banner */
-  .install-banner{
-    display:none; align-items:center; justify-content:space-between;
-    background:linear-gradient(135deg, #10b981 0%, #059669 100%); color:#fff; border-radius:12px; padding:10px 16px;
-    margin-bottom:14px; font-size:13px; font-weight:800; box-shadow:0 6px 18px rgba(16,185,129,0.3);
-  }
-  .install-banner button{
-    background:#fff; color:#059669; border:none; border-radius:8px;
-    padding:7px 14px; font-weight:800; cursor:pointer; font-size:12px;
-    box-shadow:0 2px 6px rgba(0,0,0,0.1); font-family:inherit;
-  }
 
   /* ---- FIRE HUB MODAL (Add to Home Screen & Share) ---- */
   .fire-modal-overlay{
@@ -557,12 +546,6 @@
     <div class="theme-pill" data-t="cyberpunk" title="Cyberpunk"></div>
   </div>
 
-  <!-- PWA Install Banner -->
-  <div class="install-banner" id="installBanner">
-    <span>📲 Install 1024 as App</span>
-    <button id="installBtn">Install</button>
-  </div>
-
   <!-- Mode Selector -->
   <div class="mode-row">
     <button class="mode-btn active" data-mode="classic" id="modeClassic">Classic</button>
@@ -575,7 +558,7 @@
     <button class="icon-btn" id="newGameBtn" data-tip="New Game" title="New Game">&#9654;</button>
     <button class="icon-btn" id="undoBtn" disabled data-tip="Undo Move" title="Undo">&#8617;</button>
     <button class="icon-btn" id="soundBtn" data-tip="Sound" title="Toggle Sound"><span id="soundIcon">&#128264;</span></button>
-    <button class="icon-btn share-icon" id="topShareBtn" data-tip="Add to Home / Share" title="Add to Home Screen & Share">&#128293;</button>
+    <button class="icon-btn share-icon" id="topShareBtn" data-tip="Challenge Friend" title="Challenge a Friend & Install App">&#128293;</button>
   </div>
 
   <!-- Power-Up Boosters Row (Style 3 Icon Badges) -->
@@ -635,19 +618,19 @@
     <div id="lbList"></div>
   </div>
 
-  <!-- Fire Hub Modal (Add to Home Screen & Share) -->
+  <!-- Challenge a Friend & Install Hub Modal -->
   <div class="fire-modal-overlay" id="fireModalOverlay">
     <div class="fire-modal" id="fireModal">
       <div class="fire-modal-header">
-        <div class="fire-modal-title">&#128293; 1024 Quick Hub</div>
+        <div class="fire-modal-title">&#128293; Challenge a Friend & Install</div>
         <button class="fire-modal-close" id="closeFireModal" aria-label="Close">&times;</button>
       </div>
       <div class="fire-modal-options">
         <button class="fire-opt-btn highlight" id="fireInstallBtn">
           <span class="fire-opt-icon">&#128242;</span>
           <div class="fire-opt-info">
-            <span class="fire-opt-heading">Add to Home Screen</span>
-            <span class="fire-opt-sub">Install on phone for fast offline play</span>
+            <span class="fire-opt-heading">Install 1024 App</span>
+            <span class="fire-opt-sub">Add to Home Screen for fast offline play</span>
           </div>
         </button>
         <button class="fire-opt-btn" id="fireShareBtn">
@@ -660,8 +643,8 @@
         <button class="fire-opt-btn" id="fireCopyBtn">
           <span class="fire-opt-icon">&#128203;</span>
           <div class="fire-opt-info">
-            <span class="fire-opt-heading">Copy Game Link</span>
-            <span class="fire-opt-sub">Direct link to play anytime</span>
+            <span class="fire-opt-heading">Copy Challenge Link</span>
+            <span class="fire-opt-sub">Direct game link to share anywhere</span>
           </div>
         </button>
       </div>
@@ -699,7 +682,6 @@
   const hammerBtn=$("hammerBtn"), shuffleBtn=$("shuffleBtn");
   const hammerCountEl=$("hammerCount"), shuffleCountEl=$("shuffleCount");
   const modeClassic=$("modeClassic"), modeBlitz=$("modeBlitz"), modeDaily=$("modeDaily");
-  const installBanner=$("installBanner"), installBtn=$("installBtn");
   const fireModalOverlay=$("fireModalOverlay"), closeFireModal=$("closeFireModal");
   const fireInstallBtn=$("fireInstallBtn"), fireShareBtn=$("fireShareBtn"), fireCopyBtn=$("fireCopyBtn");
   let deferredPrompt;
@@ -1078,8 +1060,7 @@
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === 'accepted') {
-          showToast("Installing 1024 to Home Screen... 📲✨");
-          if (installBanner) installBanner.style.display = "none";
+          showToast("Installing 1024 App... 📲✨");
         }
         deferredPrompt = null;
       } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
@@ -1113,8 +1094,8 @@
     });
   }
 
-  if(winShareBtn) winShareBtn.addEventListener("click",()=>shareScore("I reached the 1024 tile & WON!"));
-  if(overShareBtn) overShareBtn.addEventListener("click",()=>shareScore(`I scored ${score.toLocaleString()} points`));
+  if(winShareBtn) winShareBtn.addEventListener("click", openFireModal);
+  if(overShareBtn) overShareBtn.addEventListener("click", openFireModal);
 
   /* ------ POWER-UPS & MODES LISTENERS ------ */
 
@@ -1164,14 +1145,6 @@
   window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault();
     deferredPrompt = e;
-    installBanner.style.display = "flex";
-  });
-  installBtn.addEventListener("click", async () => {
-    if(!deferredPrompt) return;
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    if(outcome === 'accepted'){ installBanner.style.display = "none"; }
-    deferredPrompt = null;
   });
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('./sw.js').catch(()=>{});
