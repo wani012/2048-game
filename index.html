@@ -7,8 +7,8 @@
 <!-- Primary SEO Meta Tags -->
 <title>1024 Puzzle Game - Play Online Free</title>
 <meta name="title" content="1024 Puzzle Game - Play Online Free">
-<meta name="description" content="Play the addictive 1024 & 2048 number puzzle game online for free! Start with 1, 2, 4, merge tiles, beat global high scores, and reach 1024 with multiple themes and sound effects.">
-<meta name="keywords" content="1024 game, 2048 game, play 1024 online, 2048 puzzle, number game, math puzzle game, merge tiles, brain game, free online games, mobile friendly puzzle">
+<meta name="description" content="Play the addictive 1024 number puzzle game online for free! Start with 1, 2, 4, merge tiles, beat global high scores, and reach the 1024 tile with multiple themes and sound effects.">
+<meta name="keywords" content="1024 game, play 1024 online, 1024 puzzle, number game, math puzzle game, merge tiles, brain game, free online games, mobile friendly puzzle">
 <meta name="robots" content="index, follow">
 <meta name="language" content="English">
 <meta name="author" content="wani012">
@@ -24,13 +24,13 @@
 <!-- Twitter Cards -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="https://wani012.github.io/2048-game/">
-<meta name="twitter:title" content="1024  Puzzle Game - Play Online Free">
-<meta name="twitter:description" content="Play the free 1024 / 2048 tile puzzle game. Smooth controls, multiple themes, and instant global best score tracking!">
+<meta name="twitter:title" content="1024 Puzzle Game - Play Online Free">
+<meta name="twitter:description" content="Play the free 1024 tile puzzle game. Smooth controls, multiple themes, and instant global best score tracking!">
 <meta name="twitter:image" content="https://wani012.github.io/2048-game/preview.png">
 
 <!-- Mobile App & Theme Meta -->
 <meta name="theme-color" content="#faf8ef">
-<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="1024 Game">
 
@@ -47,7 +47,7 @@
   "applicationCategory": "GameApplication",
   "operatingSystem": "All",
   "genre": "Puzzle",
-  "description": "A fun and addictive online 1024 and 2048 number puzzle game. Merge matching tiles to reach 1024!",
+  "description": "A fun and addictive online 1024 number puzzle game. Merge matching tiles to reach 1024!",
   "offers": {
     "@type": "Offer",
     "price": "0",
@@ -216,8 +216,7 @@
   .v128{ background:#edcf72; color:#f9f6f2; }
   .v256{ background:#edcc61; color:#f9f6f2; }
   .v512{ background:#edc850; color:#f9f6f2; }
-  .v1024{ background:#edc53f; color:#f9f6f2; }
-  .v2048{ background:#edc22e; color:#f9f6f2; box-shadow:0 0 28px 8px rgba(243,215,116,0.6); }
+  .v1024{ background:#edc53f; color:#f9f6f2; box-shadow:0 0 28px 8px rgba(243,215,116,0.6); }
   .v-super{ background:#3c3a32; color:#f9f6f2; }
 
   .board-wrap[data-fontscale="lg"] .tile-inner{ font-size:clamp(22px,7.5vw,52px); }
@@ -396,10 +395,10 @@
   "use strict";
 
   const SIZE = 4;
-const K_BEST  = "g2048_best"; // kept for fallback if needed
-const K_LB    = "g2048_lb";
-const K_THEME = "g2048_theme";
-const K_SOUND = "g2048_sound";
+const K_BEST  = "g1024_best"; // kept for fallback if needed
+const K_LB    = "g1024_lb";
+const K_THEME = "g1024_theme";
+const K_SOUND = "g1024_sound";
 
 // --- Firebase configuration (replace placeholders with your project values) ---
 const firebaseConfig = {
@@ -569,7 +568,7 @@ function updateGlobalBestIfHigher(newScore) {
 
   /* ------ RENDER ------ */
   function fscale(v){ return v>=1000?"sm":v>=100?"md":"lg"; }
-  function cls(v){ return v<=2048?"v"+v:"v-super"; }
+  function cls(v){ return v<=1024?"v"+v:"v-super"; }
   function cellPos(r,c){
     const wr=boardWrap.getBoundingClientRect(), p=10, g=10;
     const inner=wr.width-p*2, cs=(inner-g*(SIZE-1))/SIZE;
