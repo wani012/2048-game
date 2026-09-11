@@ -214,16 +214,17 @@
           });
         }
 
-        // Realistic marine life: Sea Turtles, Blue Tangs, Clownfish, Manta Rays
-        const creatureCount = this.isMobile ? 8 : 14;
+        // Prominent live marine life: Sea Turtles, Blue Tangs, Clownfish, Manta Rays (Large & Active)
+        const creatureCount = this.isMobile ? 10 : 16;
         const speciesList = [
-          { type: 'turtle', name: 'Sea Turtle', speedMult: 0.36, length: 52, scale: 0.85, alpha: 0.9 },
-          { type: 'tang', name: 'Blue Tang (Dory)', speedMult: 0.72, length: 30, scale: 0.8, body: '#1d4ed8', fin: '#facc15', belly: '#60a5fa', alpha: 0.88 },
-          { type: 'clown', name: 'Clownfish (Nemo)', speedMult: 0.65, length: 26, scale: 0.85, body: '#ea580c', fin: '#ffffff', belly: '#fb923c', alpha: 0.88 },
-          { type: 'angel', name: 'Moorish Idol', speedMult: 0.7, length: 34, scale: 0.85, body: '#0f172a', fin: '#facc15', belly: '#f8fafc', alpha: 0.88 },
-          { type: 'ray', name: 'Manta Ray', speedMult: 0.4, length: 60, scale: 0.8, alpha: 0.78 },
-          { type: 'emerald', name: 'Parrotfish', speedMult: 0.68, length: 32, scale: 0.8, body: '#059669', fin: '#34d399', belly: '#a7f3d0', alpha: 0.85 },
-          { type: 'violet', name: 'Orchid Dottyback', speedMult: 0.8, length: 24, scale: 0.75, body: '#7c3aed', fin: '#c084fc', belly: '#ede9fe', alpha: 0.85 }
+          { type: 'turtle', name: 'Sea Turtle', speedMult: 0.55, length: 95, scale: 1.25, alpha: 0.95 },
+          { type: 'turtle', name: 'Baby Sea Turtle', speedMult: 0.65, length: 65, scale: 1.0, alpha: 0.92 },
+          { type: 'tang', name: 'Blue Tang (Dory)', speedMult: 1.1, length: 50, scale: 1.1, body: '#1d4ed8', fin: '#facc15', belly: '#60a5fa', alpha: 0.95 },
+          { type: 'clown', name: 'Clownfish (Nemo)', speedMult: 0.95, length: 44, scale: 1.15, body: '#ea580c', fin: '#ffffff', belly: '#fb923c', alpha: 0.95 },
+          { type: 'angel', name: 'Moorish Idol', speedMult: 1.05, length: 55, scale: 1.15, body: '#0f172a', fin: '#facc15', belly: '#f8fafc', alpha: 0.95 },
+          { type: 'ray', name: 'Manta Ray', speedMult: 0.62, length: 110, scale: 1.1, alpha: 0.88 },
+          { type: 'emerald', name: 'Parrotfish', speedMult: 1.0, length: 52, scale: 1.1, body: '#059669', fin: '#34d399', belly: '#a7f3d0', alpha: 0.92 },
+          { type: 'violet', name: 'Orchid Dottyback', speedMult: 1.15, length: 42, scale: 1.05, body: '#7c3aed', fin: '#c084fc', belly: '#ede9fe', alpha: 0.92 }
         ];
 
         for (let i = 0; i < creatureCount; i++) {
@@ -231,16 +232,16 @@
           const spec = speciesList[i % speciesList.length];
           this.creatures.push({
             x: Math.random() * w,
-            y: Math.random() * (h * 0.80) + h * 0.08,
-            length: spec.length * (Math.random() * 0.3 + 0.85),
-            speed: (Math.random() * 0.45 + 0.45) * spec.speedMult * dir,
+            y: Math.random() * (h * 0.82) + h * 0.08,
+            length: spec.length * (Math.random() * 0.25 + 0.9),
+            speed: (Math.random() * 0.55 + 0.65) * spec.speedMult * dir,
             dir: dir,
             freq: Math.random() * 0.035 + 0.02,
-            amp: Math.random() * 14 + 6,
+            amp: Math.random() * 16 + 8,
             tailAngle: Math.random() * Math.PI * 2,
             flipperAngle: 0,
             species: spec,
-            scale: spec.scale * (Math.random() * 0.25 + 0.85),
+            scale: spec.scale * (Math.random() * 0.25 + 0.9),
             depth: Math.random() * 0.5 + 0.5
           });
         }

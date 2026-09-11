@@ -1,4 +1,4 @@
-const CACHE_NAME = '1024-v15';
+const CACHE_NAME = '1024-v16';
 const ASSETS = ['./', 'index.html', 'style.css', 'theme-engine.js', 'underwater-reef.jpg', 'space-cosmos.jpg', 'arctic-glacier.jpg', 'manifest.json', 'icon.png'];
 
 self.addEventListener('install', e => {
