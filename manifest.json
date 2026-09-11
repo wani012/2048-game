@@ -1,0 +1,17 @@
+﻿{
+  name: 1024 Puzzle Game,
+  short_name: 1024,
+  description: Addictive 1024 number puzzle game. Start from 1, merge tiles, beat global high scores!,
+  start_url: ./,
+  display: standalone,
+  background_color: #faf8ef,
+  theme_color: #faf8ef,
+  orientation: portrait,
+  icons: [
+    {
+      src: icon.png,
+      sizes: 192x192 512x512,
+      type: image/png
+    }
+  ]
+}
