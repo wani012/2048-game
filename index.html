@@ -62,6 +62,10 @@
   }
 }
 </script>
+<!-- Firebase App & Realtime Database SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
 <!-- Google Fonts: Outfit & Inter for ultra sleek aesthetic typography -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -670,7 +674,7 @@
         <div class="score-label">SCORE</div>
         <div class="score-value" id="scoreValue">0</div>
       </div>
-      <div class="score-box">
+      <div class="score-box best-container">
         <div class="score-label">BEST</div>
         <div class="score-value" id="bestValue">0</div>
       </div>
@@ -867,11 +871,64 @@
   const fireInstallBtn=$("fireInstallBtn"), fireShareBtn=$("fireShareBtn"), fireCopyBtn=$("fireCopyBtn");
   let deferredPrompt;
 
+  /* ------ FIREBASE CONFIG & GLOBAL BEST SCORE ------ */
+  const firebaseConfig = {
+    apiKey: "AIzaSyAtXBRPOXEcYN-OF4x_ZKn6WlwO0KyHn8Y",
+    authDomain: "furkan-farooq.firebaseapp.com",
+    databaseURL: "https://furkan-farooq-default-rtdb.firebaseio.com",
+    projectId: "furkan-farooq",
+    storageBucket: "furkan-farooq.firebasestorage.app",
+    messagingSenderId: "708348430058",
+    appId: "1:708348430058:web:cf92f85accd8a6919e7993",
+    measurementId: "G-M774JD8DL5"
+  };
+
+  let globalBestRef = null;
+  try {
+    if (typeof firebase !== "undefined") {
+      if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+      }
+      globalBestRef = firebase.database().ref("global_best_score");
+    }
+  } catch (err) {
+    console.warn("Firebase initialization notice:", err);
+  }
+
+  function initGlobalBestListener() {
+    if (!globalBestRef) return;
+    globalBestRef.on("value", snapshot => {
+      const remoteVal = snapshot.val();
+      if (remoteVal !== null && !isNaN(remoteVal)) {
+        const remoteBest = Number(remoteVal);
+        if (remoteBest > best) {
+          best = remoteBest;
+          bestEl.textContent = best.toLocaleString();
+          localStorage.setItem(K_BEST, String(best));
+        }
+      }
+    }, err => {
+      console.warn("Firebase score sync error:", err);
+    });
+  }
+
   function updateGlobalBestIfHigher(newScore) {
     if (newScore > best) {
       best = newScore;
       bestEl.textContent = best.toLocaleString();
       saveBest();
+
+      // Update Firebase only when local score crosses the current global best
+      if (globalBestRef) {
+        globalBestRef.transaction(currentBest => {
+          if (currentBest === null || newScore > currentBest) {
+            return newScore;
+          }
+          return currentBest; // Abort if another player scored higher in the meantime
+        }).catch(err => {
+          console.warn("Firebase transaction update notice:", err);
+        });
+      }
     }
   }
 
@@ -1385,7 +1442,7 @@
   window.addEventListener("resize",render);
 
   /* ------ BOOT ------ */
-  buildGrid(); loadBest(); renderLB(); newGame();
+  buildGrid(); loadBest(); initGlobalBestListener(); renderLB(); newGame();
 })();
 </script>
 </body>
