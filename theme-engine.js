@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Interactive, Photorealistic & Dynamic 3-Theme Engine for 1024 Game
  * Desktop & Mobile Responsive with 60 FPS RequestAnimationFrame Loop
  * 
@@ -33,6 +33,7 @@
     creatures: [],
     meteors: [],
     mistParticles: [],
+    shockwaves: [],
     lastTime: 0,
     running: false,
     errorCount: 0,
@@ -42,6 +43,21 @@
     parallaxY: 0,
     targetParallaxX: 0,
     targetParallaxY: 0,
+
+    // Trigger dynamic shockwave/fluid ripple (called on merge or touch)
+    spawnShockwave: function(x, y, power) {
+      if (this.shockwaves.length > 8) this.shockwaves.shift();
+      const col = this.currentTheme === 'aqua' ? '#00f0ff' : (this.currentTheme === 'stargazer' ? '#c084fc' : '#38bdf8');
+      this.shockwaves.push({
+        x: x || (this.width / 2),
+        y: y || (this.height / 2),
+        radius: 8,
+        maxRadius: power ? Math.min(this.width, this.height) * 0.42 : Math.min(this.width, this.height) * 0.26,
+        life: 1.0,
+        decay: power ? 1.4 : 1.8,
+        color: col
+      });
+    },
 
     init: function(canvasId) {
       try {
@@ -62,12 +78,16 @@
           }
         }, { passive: true });
 
-        // Desktop mouse parallax interaction
+        // Desktop mouse parallax & click fluid wave interaction
         window.addEventListener('mousemove', (e) => {
           const cx = window.innerWidth / 2;
           const cy = window.innerHeight / 2;
           this.targetParallaxX = (e.clientX - cx) / cx * 18;
           this.targetParallaxY = (e.clientY - cy) / cy * 18;
+        }, { passive: true });
+
+        window.addEventListener('pointerdown', (e) => {
+          this.spawnShockwave(e.clientX, e.clientY, false);
         }, { passive: true });
 
         // Mobile gyroscope tilt parallax interaction
@@ -302,6 +322,40 @@
         this.renderAqua(ctx, w, h, dt, time);
       } else if (this.currentTheme === 'arctic') {
         this.renderArctic(ctx, w, h, dt, time);
+      }
+
+      this.renderShockwaves(ctx, dt);
+    },
+
+    /* ---- DYNAMIC SHOCKWAVES & FLUID RIPPLES ---- */
+    renderShockwaves: function(ctx, dt) {
+      for (let i = this.shockwaves.length - 1; i >= 0; i--) {
+        const sw = this.shockwaves[i];
+        sw.radius += (sw.maxRadius - sw.radius) * (sw.decay * 3.8 * dt);
+        sw.life -= sw.decay * dt;
+
+        if (sw.life <= 0 || sw.radius >= sw.maxRadius * 0.98) {
+          this.shockwaves.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, sw.radius, 0, Math.PI * 2);
+        ctx.strokeStyle = sw.color;
+        ctx.lineWidth = 2.5 * sw.life;
+        ctx.globalAlpha = sw.life * 0.45;
+        ctx.shadowColor = sw.color;
+        ctx.shadowBlur = 12 * sw.life;
+        ctx.stroke();
+
+        // Secondary subtle inner ring
+        ctx.beginPath();
+        ctx.arc(sw.x, sw.y, Math.max(1, sw.radius * 0.72), 0, Math.PI * 2);
+        ctx.lineWidth = 1.2 * sw.life;
+        ctx.globalAlpha = sw.life * 0.25;
+        ctx.stroke();
+        ctx.restore();
       }
     },
 

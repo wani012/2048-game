@@ -1214,7 +1214,15 @@
     prevBoard=sb; prevScore=ss; prevMoves=sm; undoBtn.disabled=false;
     const ps=score; score+=totalGained; moves++; moveEl.textContent=moves;
     spawn(); render(); updateScore(ps);
-    if(merged) sndMerge(); else sndMove();
+    if(merged){
+      sndMerge();
+      if(window.ThemeEngine && window.ThemeEngine.spawnShockwave){
+        const wr = boardWrap.getBoundingClientRect();
+        window.ThemeEngine.spawnShockwave(wr.left + wr.width / 2, wr.top + wr.height / 2, true);
+      }
+    } else {
+      sndMove();
+    }
     checkWin(); checkOver();
   }
 
