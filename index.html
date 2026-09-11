@@ -70,6 +70,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800;900&family=Plus+Jakarta+Sans:wght@500;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 
 <style>
   :root, [data-theme="space"]{
@@ -664,6 +665,7 @@
 </style>
 </head>
 <body>
+<canvas id="bg-canvas"></canvas>
 <div class="container">
 
   <!-- Header -->
@@ -696,25 +698,17 @@
     </div>
   </div>
 
-  <!-- Theme selector - color circles with Space & Frosted Glass -->
-  <div class="theme-row">
-    <div class="theme-label">Theme:</div>
-    <div class="theme-pill active" data-t="space" title="Cosmic Galaxy 🌌"></div>
-    <div class="theme-pill" data-t="glass" title="Frosted Glass 🪟"></div>
-    <div class="theme-pill" data-t="classic" title="Classic Warm ☕"></div>
-    <div class="theme-pill" data-t="dark" title="Dark Slate 🌑"></div>
-    <div class="theme-pill" data-t="ocean" title="Ocean Blue 🌊"></div>
-    <div class="theme-pill" data-t="forest" title="Emerald Forest 🌲"></div>
-    <div class="theme-pill" data-t="purple" title="Neon Purple 🔮"></div>
-    <div class="theme-pill" data-t="cyberpunk" title="Cyberpunk ⚡"></div>
-  </div>
-
-  <!-- Mode Selector with soft neon outlines -->
-  <div class="mode-row">
-    <button class="mode-btn" data-mode="classic" id="modeClassic">Classic</button>
-    <button class="mode-btn" data-mode="blitz" id="modeBlitz">⏱️ Blitz</button>
-    <button class="mode-btn active" data-mode="space" id="modeSpace">🚀 Space Explorer</button>
-    <button class="mode-btn" data-mode="daily" id="modeDaily">📅 Daily</button>
+  <!-- Sleek Glassmorphic Theme Switcher UI -->
+  <div class="theme-switch-row">
+    <button class="theme-toggle-btn active" data-theme="stargazer" id="themeStargazer">
+      <span>🌌</span> Stargazer
+    </button>
+    <button class="theme-toggle-btn" data-theme="aqua" id="themeAqua">
+      <span>🌊</span> Aqua Drift
+    </button>
+    <button class="theme-toggle-btn" data-theme="arctic" id="themeArctic">
+      <span>❄️</span> Arctic Drift
+    </button>
   </div>
 
   <!-- Action buttons (Style 3 Sleek Icon Dock) -->
@@ -976,16 +970,26 @@
     showToast(soundOn ? "Sound: ON 🔊" : "Sound: Muted 🔇");
   });
 
-  /* ------ THEME ------ */
-  let theme=localStorage.getItem(K_THEME)||"space";
+  /* ------ THEME SWITCHER (STARGAZER, AQUA, ARCTIC) ------ */
+  const themeBtns = document.querySelectorAll(".theme-toggle-btn");
   function applyTheme(t){
-    theme=t;
-    document.body.dataset.theme=t;
-    localStorage.setItem(K_THEME,t);
-    document.querySelectorAll(".theme-pill").forEach(p=>p.classList.toggle("active",p.dataset.t===t));
+    if (window.ThemeEngine && window.ThemeEngine.switchTheme) {
+      window.ThemeEngine.switchTheme(t);
+    } else {
+      document.body.setAttribute("data-animated-theme", t);
+      localStorage.setItem("g1024_active_theme", t);
+    }
+    themeBtns.forEach(btn => btn.classList.toggle("active", btn.dataset.theme === t));
   }
-  applyTheme(theme);
-  document.querySelectorAll(".theme-pill").forEach(p=>p.addEventListener("click",()=>applyTheme(p.dataset.t)));
+  themeBtns.forEach(btn => {
+    btn.addEventListener("click", () => {
+      const t = btn.dataset.theme;
+      applyTheme(t);
+      if (t === "stargazer") showToast("🌌 Stargazer Theme Activated");
+      else if (t === "aqua") showToast("🌊 Aqua Drift Theme Activated");
+      else if (t === "arctic") showToast("❄️ Arctic Drift Theme Activated");
+    });
+  });
 
   /* ------ GAME MODES & BOOSTERS STATE ------ */
   let gameMode = "classic"; // "classic", "blitz", "daily"
@@ -1444,6 +1448,13 @@
   /* ------ BOOT ------ */
   buildGrid(); loadBest(); initGlobalBestListener(); renderLB(); newGame();
 })();
+</script>
+<script src="theme-engine.js"></script>
+<script>
+  // Initialize High-Performance Canvas Theme Engine
+  if (window.ThemeEngine) {
+    window.ThemeEngine.init('bg-canvas');
+  }
 </script>
 </body>
 </html>
