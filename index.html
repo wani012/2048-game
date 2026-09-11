@@ -244,20 +244,43 @@
   }
   .theme-pill:hover::after{ opacity:1; }
 
-  /* ---- ACTION BUTTONS ---- */
+  /* ---- ACTION BUTTONS & BOOSTERS ICON DOCK (STYLE 3) ---- */
   .action-row{
-    display:flex; gap:10px; margin-bottom:14px; flex-wrap:wrap;
+    display:flex; gap:10px; margin-bottom:14px; justify-content:space-between;
   }
-  .btn{
-    flex:1; background:var(--btn-bg); border:none; border-radius:12px;
-    color:#fff; font-size:13px; font-weight:800; font-family:inherit;
-    padding:12px 10px; cursor:pointer; transition:transform .15s ease, background .2s, box-shadow .2s;
-    white-space:nowrap; text-align:center; min-width:70px;
-    box-shadow:0 4px 14px rgba(0,0,0,0.12); border:1px solid rgba(255,255,255,0.1);
+  .icon-btn{
+    flex:1; height:48px; max-width:68px; background:var(--btn-bg); border:none; border-radius:14px;
+    color:#fff; font-size:20px; font-family:inherit; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    transition:transform .18s cubic-bezier(0.34, 1.56, 0.64, 1), background .2s, box-shadow .2s;
+    box-shadow:0 4px 14px rgba(0,0,0,0.12); border:1px solid rgba(255,255,255,0.15);
+    position:relative; backdrop-filter:blur(6px);
   }
-  .btn:hover{ background:var(--btn-hover); transform:translateY(-2px); box-shadow:0 6px 18px rgba(0,0,0,0.18); }
-  .btn:active{ background:var(--btn-active); transform:translateY(1px); }
-  .btn:disabled{ opacity:0.35; cursor:not-allowed; transform:none; }
+  .icon-btn:hover{ background:var(--btn-hover); transform:translateY(-3px) scale(1.05); box-shadow:0 8px 20px rgba(0,0,0,0.2); }
+  .icon-btn:active{ transform:scale(0.92); }
+  .icon-btn:disabled{ opacity:0.32; cursor:not-allowed; transform:none; }
+  .icon-btn.share-icon{ background:#25D366; }
+  .icon-btn.share-icon:hover{ background:#20bd5a; }
+
+  /* Interactive Tooltip (Hover & Tap) */
+  .icon-btn[data-tip]::after{
+    content:attr(data-tip); position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.85); color:#fff; font-size:10px; font-weight:800; padding:3px 8px;
+    border-radius:6px; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity 0.2s, transform 0.2s; z-index:100; backdrop-filter:blur(4px);
+  }
+  .icon-btn:hover[data-tip]::after{ opacity:1; transform:translateX(-50%) translateY(2px); }
+
+  /* Floating Toast Feedback on Icon Tap */
+  .toast-msg{
+    position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-20px);
+    background:rgba(0,0,0,0.88); color:#fff; padding:10px 20px; border-radius:20px;
+    font-size:13px; font-weight:800; z-index:9999; opacity:0; pointer-events:none;
+    box-shadow:0 10px 25px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.2);
+    transition:transform 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28), opacity 0.3s;
+    backdrop-filter:blur(8px);
+  }
+  .toast-msg.show{ opacity:1; transform:translateX(-50%) translateY(0); }
 
   /* ---- BOARD ---- */
   .board-wrap{
@@ -350,15 +373,26 @@
   
   .boost-row{ display:flex; gap:10px; margin-bottom:14px; }
   .boost-btn{
-    flex:1; background:var(--ui-bg); border:1px solid rgba(255,255,255,0.2); border-radius:10px;
-    color:#fff; font-size:12px; font-weight:800; padding:9px 6px; cursor:pointer;
-    display:flex; align-items:center; justify-content:center; gap:6px; transition:transform .15s, background .15s;
-    box-shadow:0 4px 10px rgba(0,0,0,0.08); font-family:inherit;
+    flex:1; height:46px; background:var(--ui-bg); border:1px solid rgba(255,255,255,0.2); border-radius:14px;
+    color:#fff; font-size:15px; font-weight:800; padding:0 12px; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; gap:8px; transition:transform .15s, background .15s, box-shadow .15s;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08); font-family:inherit; position:relative;
   }
-  .boost-btn:hover{ background:var(--btn-hover); transform:translateY(-1px); }
+  .boost-btn:hover{ background:var(--btn-hover); transform:translateY(-2px); box-shadow:0 6px 16px rgba(0,0,0,0.15); }
+  .boost-btn:active{ transform:scale(0.95); }
   .boost-btn.active{ background:#e74c3c; animation:pulse 0.8s infinite alternate; }
-  @keyframes pulse{ from{box-shadow:0 0 4px #e74c3c;} to{box-shadow:0 0 16px #e74c3c;} }
-  .boost-badge{ background:rgba(0,0,0,0.35); padding:2px 7px; border-radius:12px; font-size:10px; font-weight:900; }
+  @keyframes pulse{ from{box-shadow:0 0 6px #e74c3c;} to{box-shadow:0 0 20px #e74c3c;} }
+  .boost-badge{
+    background:rgba(0,0,0,0.4); padding:2px 8px; border-radius:12px; font-size:11px; font-weight:900;
+    box-shadow:inset 0 1px 3px rgba(0,0,0,0.2);
+  }
+  .boost-btn[data-tip]::after{
+    content:attr(data-tip); position:absolute; bottom:-30px; left:50%; transform:translateX(-50%);
+    background:rgba(0,0,0,0.85); color:#fff; font-size:10px; font-weight:800; padding:3px 8px;
+    border-radius:6px; white-space:nowrap; pointer-events:none;
+    opacity:0; transition:opacity 0.2s, transform 0.2s; z-index:100; backdrop-filter:blur(4px);
+  }
+  .boost-btn:hover[data-tip]::after{ opacity:1; transform:translateX(-50%) translateY(2px); }
 
   /* Hammer selection target */
   .tile.hammer-target{ cursor:crosshair; animation:shake 0.3s infinite; }
@@ -477,23 +511,26 @@
     <button class="mode-btn" data-mode="daily" id="modeDaily">📅 Daily</button>
   </div>
 
-  <!-- Action buttons -->
+  <!-- Action buttons (Style 3 Sleek Icon Dock) -->
   <div class="action-row">
-    <button class="btn" id="newGameBtn" title="New Game">&#9654; New</button>
-    <button class="btn" id="undoBtn" disabled title="Undo last move">&#8617; Undo</button>
-    <button class="btn" id="soundBtn" title="Toggle Sound"><span id="soundIcon">&#128264;</span> <span id="soundText">Sound</span></button>
-    <button class="btn" id="topShareBtn" style="background:#25D366;color:#fff;" title="Share on WhatsApp">&#128293; Share</button>
+    <button class="icon-btn" id="newGameBtn" data-tip="New Game" title="New Game">&#9654;</button>
+    <button class="icon-btn" id="undoBtn" disabled data-tip="Undo Move" title="Undo">&#8617;</button>
+    <button class="icon-btn" id="soundBtn" data-tip="Sound" title="Toggle Sound"><span id="soundIcon">&#128264;</span></button>
+    <button class="icon-btn share-icon" id="topShareBtn" data-tip="Share on WhatsApp" title="Challenge Friend">&#128293;</button>
   </div>
 
-  <!-- Power-Up Boosters Row -->
+  <!-- Power-Up Boosters Row (Style 3 Icon Badges) -->
   <div class="boost-row">
-    <button class="boost-btn" id="hammerBtn" title="Destroy an annoying tile">
-      🔨 Hammer <span class="boost-badge" id="hammerCount">2</span>
+    <button class="boost-btn" id="hammerBtn" data-tip="Smash Tile" title="Smash any tile">
+      🔨 <span style="font-size:12px;font-weight:800;">Smash</span> <span class="boost-badge" id="hammerCount">2</span>
     </button>
-    <button class="boost-btn" id="shuffleBtn" title="Scramble tiles on board">
-      🔀 Shuffle <span class="boost-badge" id="shuffleCount">1</span>
+    <button class="boost-btn" id="shuffleBtn" data-tip="Shuffle Board" title="Scramble all tiles">
+      🔀 <span style="font-size:12px;font-weight:800;">Shuffle</span> <span class="boost-badge" id="shuffleCount">1</span>
     </button>
   </div>
+
+  <!-- Floating Toast Notification on Tap (Style 3) -->
+  <div class="toast-msg" id="toastMsg"></div>
 
   <!-- Game Board -->
   <div class="board-wrap" id="boardWrap" data-fontscale="lg">
@@ -624,15 +661,26 @@ function updateGlobalBestIfHigher(newScore) {
   const sndOver  = ()=>beep(100,"sawtooth",0.4,0.2);
 
   soundOn = localStorage.getItem(K_SOUND) !== "off";
+  const toastEl = $("toastMsg");
+  let toastTimer = null;
+  function showToast(msg){
+    if(!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(()=>toastEl.classList.remove("show"), 1800);
+  }
+
   function updateSoundUI(){
-    soundIcon.textContent = soundOn ? "\uD83D\uDD0A" : "\uD83D\uDD07";
-    soundText.textContent  = soundOn ? "Sound ON"   : "Sound OFF";
+    if(soundIcon) soundIcon.textContent = soundOn ? "\uD83D\uDD0A" : "\uD83D\uDD07";
+    if(soundText) soundText.textContent  = soundOn ? "Sound ON"   : "Sound OFF";
   }
   updateSoundUI();
   soundBtn.addEventListener("click",()=>{
     soundOn=!soundOn;
     localStorage.setItem(K_SOUND,soundOn?"on":"off");
     updateSoundUI();
+    showToast(soundOn ? "Sound: ON 🔊" : "Sound: Muted 🔇");
   });
 
   /* ------ THEME ------ */
@@ -796,6 +844,7 @@ function updateGlobalBestIfHigher(newScore) {
         if(hammerCount <= 0) hammerBtn.disabled = true;
         flashThunder();
         beep(150, "square", 0.1, 0.2);
+        showToast("Tile smashed! 💥");
         render();
       });
 
@@ -856,6 +905,7 @@ function updateGlobalBestIfHigher(newScore) {
     board=cloneB(prevBoard); score=prevScore; moves=prevMoves;
     prevBoard=null; moveEl.textContent=moves; undoBtn.disabled=true;
     render(); updateScore(); hideOverlays(); locked=false;
+    showToast("Move undone ↩");
   });
 
   /* ------ WIN / OVER ------ */
@@ -883,7 +933,10 @@ function updateGlobalBestIfHigher(newScore) {
   }
 
   /* ------ BUTTON EVENTS ------ */
-  newBtn.addEventListener("click",newGame);
+  newBtn.addEventListener("click",()=>{
+    newGame();
+    showToast("New Game Started! ▶");
+  });
   overNewBtn.addEventListener("click",newGame);
   winNewBtn.addEventListener("click",newGame);
   keepGoingBtn.addEventListener("click",()=>{
@@ -900,6 +953,7 @@ function updateGlobalBestIfHigher(newScore) {
   function shareScore(statusText){
     const shareUrl = window.location.origin + window.location.pathname;
     const text = `🔥 ${statusText} in 1024 Puzzle Game!\nScore: ${score.toLocaleString()} | Moves: ${moves} | Time: ${timerEl.textContent}\nCan you beat my record? Play here: ${shareUrl}`;
+    showToast("Sharing challenge link... 🔥");
     if(navigator.share){
       navigator.share({ title:"1024 Puzzle Challenge", text:text, url:shareUrl }).catch(()=>{});
     }else{
@@ -920,6 +974,11 @@ function updateGlobalBestIfHigher(newScore) {
     if(hammerCount <= 0 || locked) return;
     hammerActive = !hammerActive;
     hammerBtn.classList.toggle("active", hammerActive);
+    if(hammerActive){
+      showToast("Tap any tile to smash! 🔨");
+    } else {
+      showToast("Hammer cancelled");
+    }
     render();
   });
 
@@ -940,6 +999,7 @@ function updateGlobalBestIfHigher(newScore) {
     if(shuffleCount <= 0) shuffleBtn.disabled = true;
     flashThunder();
     sndMerge();
+    showToast("Board Shuffled! 🔀");
     render();
   });
 
