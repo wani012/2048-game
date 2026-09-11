@@ -364,16 +364,43 @@
        2. AQUA DRIFT RENDERING
        ========================================================================== */
     renderAqua: function(ctx, w, h, dt, time) {
-      // Dynamic sunlight caustics rays piercing down the water column
-      const causticsA = Math.sin(time * 0.0012) * 0.5 + 0.5;
-      const rayX = w * 0.5 + Math.sin(time * 0.0007) * (w * 0.2);
+      // 1. Cinematic Volumetric Sunbeam God Rays Sweeping Down
+      ctx.save();
+      const beamCount = this.isMobile ? 4 : 7;
+      for (let b = 0; b < beamCount; b++) {
+        const rayAngle = -0.15 + (b / beamCount) * 0.35 + Math.sin(time * 0.0006 + b * 1.2) * 0.04;
+        const originX = w * 0.5 + (b - beamCount / 2) * (w * 0.16);
+        const rayWidth = (w * 0.08) + Math.sin(time * 0.001 + b) * (w * 0.03);
+        const rayAlpha = 0.08 + Math.sin(time * 0.0012 + b * 1.5) * 0.04;
 
-      const cGrad = ctx.createRadialGradient(rayX, 0, 15, w * 0.5, h * 0.4, Math.max(w, h) * 0.85);
-      cGrad.addColorStop(0, "rgba(56, 189, 248, " + (0.16 + causticsA * 0.06) + ")");
-      cGrad.addColorStop(0.45, 'rgba(3, 105, 161, 0.08)');
-      cGrad.addColorStop(1, 'rgba(2, 11, 23, 0)');
+        const rayGrad = ctx.createLinearGradient(originX, 0, originX + Math.tan(rayAngle) * h, h);
+        rayGrad.addColorStop(0, "rgba(255, 255, 255, " + (rayAlpha * 1.6) + ")");
+        rayGrad.addColorStop(0.35, "rgba(186, 230, 253, " + rayAlpha + ")");
+        rayGrad.addColorStop(0.75, "rgba(56, 189, 248, " + (rayAlpha * 0.4) + ")");
+        rayGrad.addColorStop(1, 'rgba(2, 11, 23, 0)');
+
+        ctx.fillStyle = rayGrad;
+        ctx.beginPath();
+        ctx.moveTo(originX - rayWidth * 0.2, 0);
+        ctx.lineTo(originX + rayWidth * 0.2, 0);
+        ctx.lineTo(originX + Math.tan(rayAngle) * h + rayWidth * 1.4, h);
+        ctx.lineTo(originX + Math.tan(rayAngle) * h - rayWidth * 1.4, h);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+
+      // 2. Animated Caustics Refraction Web across the Water Column
+      ctx.save();
+      ctx.globalCompositeOperation = 'screen';
+      const causticIntensity = 0.06 + Math.sin(time * 0.0018) * 0.025;
+      const cGrad = ctx.createRadialGradient(w * 0.5, h * 0.3, 10, w * 0.5, h * 0.5, Math.max(w, h) * 0.7);
+      cGrad.addColorStop(0, "rgba(0, 240, 255, " + causticIntensity + ")");
+      cGrad.addColorStop(0.5, "rgba(14, 165, 233, " + (causticIntensity * 0.5) + ")");
+      cGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = cGrad;
       ctx.fillRect(0, 0, w, h);
+      ctx.restore();
 
       // Realistic swimming fish (smooth sine-wave swimming with multi-layer fins)
       for (let i = 0; i < this.creatures.length; i++) {
