@@ -665,14 +665,18 @@
 </style>
 </head>
 <body>
-<!-- 1. Seamless Full-Screen Underwater Coral Reef Video / Photorealistic Background -->
-<video class="underwater-bg-video" id="underwaterVideo" autoplay loop muted playsinline poster="underwater-reef.jpg">
-  <source src="https://assets.mixkit.co/videos/preview/mixkit-underwater-coral-reef-with-sunlight-rays-43283-large.mp4" type="video/mp4">
-  <img src="underwater-reef.jpg" alt="Underwater Coral Reef" class="underwater-bg-img">
-</video>
-<img src="underwater-reef.jpg" id="underwaterFallback" alt="Underwater Coral Reef" class="underwater-bg-img">
+<!-- 1. Photorealistic Smooth Cross-Fading Background Layers (0.8s transition) -->
+<div class="theme-bg-layer bg-stargazer" id="bgStargazer">
+  <img src="space-cosmos.jpg" alt="Deep Space Cosmos" class="theme-bg-img">
+</div>
+<div class="theme-bg-layer bg-aqua active" id="bgAqua">
+  <img src="underwater-reef.jpg" alt="Underwater Coral Reef" class="theme-bg-img">
+</div>
+<div class="theme-bg-layer bg-arctic" id="bgArctic">
+  <img src="arctic-glacier.jpg" alt="Arctic Glacial Wilderness" class="theme-bg-img">
+</div>
 
-<!-- 2. HTML5 Animated Marine Life & Bubbles Overlay (Z-Index: -1) -->
+<!-- 2. HTML5 Animated VFX & Particle Canvas Layer (Z-Index: -1) -->
 <canvas id="bg-canvas"></canvas>
 <div class="container">
 
@@ -708,14 +712,14 @@
 
   <!-- Sleek Glassmorphic Theme Switcher Tabs -->
   <div class="theme-switch-row">
-    <button class="theme-toggle-btn active" data-theme="aqua" id="themeAqua">
-      <span>🌊</span> AQUA DRIFT
-    </button>
     <button class="theme-toggle-btn" data-theme="stargazer" id="themeStargazer">
-      <span>🌌</span> STARGAZER
+      <span>🌌</span> Star Gazer
+    </button>
+    <button class="theme-toggle-btn active" data-theme="aqua" id="themeAqua">
+      <span>🌊</span> Aqua Drift
     </button>
     <button class="theme-toggle-btn" data-theme="arctic" id="themeArctic">
-      <span>❄️</span> ARCTIC DRIFT
+      <span>❄️</span> Arctic Drift
     </button>
   </div>
 

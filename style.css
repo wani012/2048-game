@@ -1,49 +1,81 @@
 ﻿/* ==========================================================================
-   HIGH-REALISM UNDERWATER THEME & CINEMATIC VFX STYLING
+   HIGH-REALISM DYNAMIC THEMES & 0.8s SMOOTH CROSS-FADE VFX STYLING
    ========================================================================== */
 
-/* 1. Full-screen Cinematic IMAX Underwater Coral Reef Layer */
-.underwater-bg-video,
-.underwater-bg-img {
+/* 1. Photorealistic Smooth Cross-Fading Background Layers (0.8s transition) */
+.theme-bg-layer {
   position: fixed;
   top: -5%;
   left: -5%;
   width: 110vw;
   height: 110vh;
-  object-fit: cover;
   z-index: -3;
   pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s ease;
   transform: translate3d(0, 0, 0);
   -webkit-transform: translate3d(0, 0, 0);
-  animation: oceanCinematicDrift 28s ease-in-out infinite alternate;
-  will-change: transform;
+  will-change: opacity, transform;
 }
 
-/* Natural handheld camera ocean drift */
+.theme-bg-layer.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+.theme-bg-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* Subtle camera drift for each theme */
+.bg-stargazer.active .theme-bg-img {
+  animation: spaceCosmicDrift 35s ease-in-out infinite alternate;
+}
+
+.bg-aqua.active .theme-bg-img {
+  animation: oceanCinematicDrift 28s ease-in-out infinite alternate;
+}
+
+.bg-arctic.active .theme-bg-img {
+  animation: arcticAtmosphericDrift 32s ease-in-out infinite alternate;
+}
+
+@keyframes spaceCosmicDrift {
+  0% { transform: scale(1.0) translate3d(0, 0, 0); }
+  50% { transform: scale(1.05) translate3d(-1.5%, -1.2%, 0); }
+  100% { transform: scale(1.02) translate3d(1.2%, 1.0%, 0); }
+}
+
 @keyframes oceanCinematicDrift {
-  0% {
-    transform: scale(1.0) translate3d(0, 0, 0);
-  }
-  50% {
-    transform: scale(1.04) translate3d(-1.5%, 1.2%, 0);
-  }
-  100% {
-    transform: scale(1.02) translate3d(1.2%, -1.0%, 0);
-  }
+  0% { transform: scale(1.0) translate3d(0, 0, 0); }
+  50% { transform: scale(1.04) translate3d(-1.5%, 1.2%, 0); }
+  100% { transform: scale(1.02) translate3d(1.2%, -1.0%, 0); }
+}
+
+@keyframes arcticAtmosphericDrift {
+  0% { transform: scale(1.0) translate3d(0, 0, 0); }
+  50% { transform: scale(1.03) translate3d(1.2%, -1.0%, 0); }
+  100% { transform: scale(1.05) translate3d(-1.0%, 1.2%, 0); }
 }
 
 /* Underwater ambient tint & depth shading */
 body {
   position: relative;
-  background-color: #020f1e !important;
+  background-color: #020712 !important;
   overflow-x: hidden;
+  transition: background-color 0.8s ease;
 }
 
 body::before {
   display: none !important;
 }
 
-/* 2. HTML5 Canvas Layer (VFX Caustics, Marine Life & Floating Shimmers) */
+/* 2. HTML5 Canvas Layer (VFX Caustics, Marine Life, Snow & Twinkling Stars) */
 #bg-canvas {
   position: fixed;
   top: 0;
@@ -57,7 +89,11 @@ body::before {
   will-change: transform;
 }
 
-/* 3. Pure Frosted Glassmorphism UI */
+/* ==========================================================================
+   THEME SPECIFIC GLASSMORPHIC STYLING
+   ========================================================================== */
+
+/* Base Glassmorphism */
 .glass-panel,
 .board-wrap,
 .score-box,
@@ -66,29 +102,91 @@ body::before {
 .icon-btn,
 .boost-btn,
 .lb-card {
-  background: rgba(255, 255, 255, 0.13) !important;
-  backdrop-filter: blur(16px) saturate(180%) !important;
-  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
-  border: 1.2px solid rgba(255, 255, 255, 0.35) !important;
-  box-shadow: 0 12px 36px rgba(0, 30, 65, 0.55), inset 0 0 16px rgba(255, 255, 255, 0.08) !important;
+  transition: all 0.4s ease !important;
   border-radius: 18px !important;
 }
 
-/* Game Board Underwater Glass Styling */
-.board-wrap {
-  border-radius: 24px !important;
-  background: rgba(10, 38, 70, 0.35) !important;
-  border: 1.5px solid rgba(255, 255, 255, 0.42) !important;
-  box-shadow: 0 20px 50px rgba(0, 20, 50, 0.65), 0 0 35px rgba(0, 240, 255, 0.22) !important;
+/* 1. STAR GAZER: Futuristic Dark Frosted-Glass (Deep navy/black tint, soft celestial glow border) */
+[data-animated-theme="stargazer"] .board-wrap,
+[data-animated-theme="stargazer"] .score-box,
+[data-animated-theme="stargazer"] .stat-box,
+[data-animated-theme="stargazer"] .how-to,
+[data-animated-theme="stargazer"] .icon-btn,
+[data-animated-theme="stargazer"] .boost-btn,
+[data-animated-theme="stargazer"] .lb-card {
+  background: rgba(12, 17, 34, 0.45) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1.2px solid rgba(192, 132, 252, 0.35) !important;
+  box-shadow: 0 12px 40px rgba(5, 7, 20, 0.65), 0 0 20px rgba(168, 85, 247, 0.22) !important;
 }
 
-.cell-bg {
+[data-animated-theme="stargazer"] .board-wrap {
+  border-radius: 24px !important;
+  border: 1.5px solid rgba(192, 132, 252, 0.45) !important;
+  box-shadow: 0 20px 50px rgba(3, 4, 12, 0.8), 0 0 35px rgba(168, 85, 247, 0.3) !important;
+}
+
+[data-animated-theme="stargazer"] .cell-bg {
+  background: rgba(255, 255, 255, 0.05) !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* 2. AQUA DRIFT: Ultra-clean Frosted Glassmorphism (Translucent white, aqua neon border) */
+[data-animated-theme="aqua"] .board-wrap,
+[data-animated-theme="aqua"] .score-box,
+[data-animated-theme="aqua"] .stat-box,
+[data-animated-theme="aqua"] .how-to,
+[data-animated-theme="aqua"] .icon-btn,
+[data-animated-theme="aqua"] .boost-btn,
+[data-animated-theme="aqua"] .lb-card {
+  background: rgba(255, 255, 255, 0.13) !important;
+  backdrop-filter: blur(16px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(180%) !important;
+  border: 1.2px solid rgba(255, 255, 255, 0.38) !important;
+  box-shadow: 0 12px 36px rgba(0, 30, 65, 0.55), inset 0 0 16px rgba(255, 255, 255, 0.08) !important;
+}
+
+[data-animated-theme="aqua"] .board-wrap {
+  border-radius: 24px !important;
+  background: rgba(10, 38, 70, 0.32) !important;
+  border: 1.5px solid rgba(0, 240, 255, 0.45) !important;
+  box-shadow: 0 20px 50px rgba(0, 20, 50, 0.65), 0 0 35px rgba(0, 240, 255, 0.25) !important;
+}
+
+[data-animated-theme="aqua"] .cell-bg {
   background: rgba(255, 255, 255, 0.1) !important;
   border: 1px solid rgba(255, 255, 255, 0.12) !important;
-  box-shadow: inset 0 2px 8px rgba(0, 15, 35, 0.4) !important;
 }
 
-/* Frosted Glass Tiles with Vibrant Underwater Energy */
+/* 3. ARCTIC DRIFT: Iced Glass Texture (Crisp white borders, soft glacial blue shadows) */
+[data-animated-theme="arctic"] .board-wrap,
+[data-animated-theme="arctic"] .score-box,
+[data-animated-theme="arctic"] .stat-box,
+[data-animated-theme="arctic"] .how-to,
+[data-animated-theme="arctic"] .icon-btn,
+[data-animated-theme="arctic"] .boost-btn,
+[data-animated-theme="arctic"] .lb-card {
+  background: rgba(240, 249, 255, 0.16) !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.65) !important;
+  box-shadow: 0 12px 40px rgba(15, 35, 60, 0.55), 0 0 22px rgba(56, 189, 248, 0.28), inset 0 0 14px rgba(255, 255, 255, 0.2) !important;
+}
+
+[data-animated-theme="arctic"] .board-wrap {
+  border-radius: 24px !important;
+  background: rgba(186, 230, 253, 0.12) !important;
+  border: 2px solid rgba(255, 255, 255, 0.75) !important;
+  box-shadow: 0 20px 50px rgba(10, 25, 45, 0.7), 0 0 35px rgba(186, 230, 253, 0.4), inset 0 0 20px rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-animated-theme="arctic"] .cell-bg {
+  background: rgba(255, 255, 255, 0.14) !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+}
+
+/* Frosted Glass Tiles with Vibrant Underwater & Arctic Energy */
 .tile-inner {
   border-radius: 14px !important;
   backdrop-filter: blur(10px) !important;
@@ -217,14 +315,14 @@ body::before {
   background: rgba(255, 255, 255, 0.28);
 }
 
-.theme-toggle-btn[data-theme="aqua"].active {
-  border-color: #00f0ff;
-  box-shadow: 0 0 24px rgba(0, 240, 255, 0.75), inset 0 0 10px rgba(0, 240, 255, 0.4);
-}
-
 .theme-toggle-btn[data-theme="stargazer"].active {
   border-color: #c084fc;
   box-shadow: 0 0 24px rgba(192, 132, 252, 0.75), inset 0 0 10px rgba(192, 132, 252, 0.4);
+}
+
+.theme-toggle-btn[data-theme="aqua"].active {
+  border-color: #00f0ff;
+  box-shadow: 0 0 24px rgba(0, 240, 255, 0.75), inset 0 0 10px rgba(0, 240, 255, 0.4);
 }
 
 .theme-toggle-btn[data-theme="arctic"].active {
@@ -232,7 +330,6 @@ body::before {
   box-shadow: 0 0 24px rgba(56, 189, 248, 0.75), inset 0 0 10px rgba(56, 189, 248, 0.4);
 }
 
-/* Control and booster buttons */
 .icon-btn {
   border-radius: 16px !important;
 }
@@ -241,7 +338,6 @@ body::before {
   border-radius: 999px !important;
 }
 
-/* Mobile responsive constraints */
 @media (max-width: 480px) {
   .theme-toggle-btn {
     padding: 9px 5px;

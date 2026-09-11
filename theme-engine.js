@@ -1,11 +1,21 @@
-/**
- * Ultra-Realistic, High-Performance Canvas Theme Engine for 1024 Game
- * 60 FPS Mobile-Optimized with Error Detection & Auto-Recovery
+﻿/**
+ * Interactive, Photorealistic & Dynamic 3-Theme Engine for 1024 Game
+ * Desktop & Mobile Responsive with 60 FPS RequestAnimationFrame Loop
  * 
- * Themes:
- * 1. Stargazer: 3D parallax starfield with colored nebula gas clouds, depth-blurred stars, realistic shooting stars with head glow and fading smoke trails.
- * 2. Aqua Drift: Dynamic caustic sunlight rays, realistic fish with dorsal fins, gradient scales, translucent wiggling tail fins, rising shimmering bubbles with dual highlights.
- * 3. Arctic Drift: Realistic multi-depth hexagonal/soft snowflake crystals, 3D atmospheric blizzard fog waves, and variable wind velocity gusts.
+ * 1. "Star Gazer" (Space):
+ *    - Full-screen moving deep cosmic background
+ *    - Twinkling stars, drifting cosmic dust across Z-depth, faint shooting stars
+ *    - Gyroscope tilt & desktop cursor parallax response
+ * 
+ * 2. "Aqua Drift" (Underwater):
+ *    - High-definition underwater coral reef backdrop
+ *    - Sweeping volumetric sunbeam god rays and dancing caustics
+ *    - Sea turtle, blue tangs, clownfish, rays swimming gracefully across viewport
+ *    - Rising micro-bubbles with dual highlights
+ * 
+ * 3. "Arctic Drift" (Cinematic Snowfall):
+ *    - Multi-layered blizzard / snowfall with depth (large slow foreground flakes, tiny fast background flakes)
+ *    - Cool icy blue/white color grading with subtle frosty mist hovering at bottom edges
  */
 (function(window) {
   'use strict';
@@ -13,7 +23,7 @@
   const ThemeEngine = {
     canvas: null,
     ctx: null,
-    currentTheme: 'stargazer', // 'stargazer' | 'aqua' | 'arctic'
+    currentTheme: 'aqua', // 'stargazer' | 'aqua' | 'arctic'
     animId: null,
     width: 0,
     height: 0,
@@ -22,20 +32,23 @@
     particles: [],
     creatures: [],
     meteors: [],
-    ambientWaves: [],
+    mistParticles: [],
     lastTime: 0,
     running: false,
     errorCount: 0,
+
+    // Interactive Parallax offsets
+    parallaxX: 0,
+    parallaxY: 0,
+    targetParallaxX: 0,
+    targetParallaxY: 0,
 
     init: function(canvasId) {
       try {
         this.canvas = document.getElementById(canvasId || 'bg-canvas');
         if (!this.canvas) return;
         this.ctx = this.canvas.getContext('2d', { alpha: true });
-        if (!this.ctx) {
-          console.warn('[ThemeEngine] 2D Context not supported');
-          return;
-        }
+        if (!this.ctx) return;
 
         this.isMobile = /Android|iPhone|iPad|iPod|Windows Phone/i.test(navigator.userAgent) || window.innerWidth < 768;
 
@@ -49,7 +62,25 @@
           }
         }, { passive: true });
 
-        // Auto pause on tab switch to eliminate battery usage
+        // Desktop mouse parallax interaction
+        window.addEventListener('mousemove', (e) => {
+          const cx = window.innerWidth / 2;
+          const cy = window.innerHeight / 2;
+          this.targetParallaxX = (e.clientX - cx) / cx * 18;
+          this.targetParallaxY = (e.clientY - cy) / cy * 18;
+        }, { passive: true });
+
+        // Mobile gyroscope tilt parallax interaction
+        if (window.DeviceOrientationEvent) {
+          window.addEventListener('deviceorientation', (e) => {
+            if (e.gamma !== null && e.beta !== null) {
+              this.targetParallaxX = Math.max(-25, Math.min(25, e.gamma)) * 0.8;
+              this.targetParallaxY = Math.max(-25, Math.min(25, (e.beta - 45))) * 0.8;
+            }
+          }, { passive: true });
+        }
+
+        // Auto-pause loop on tab switch (zero background battery drain)
         document.addEventListener('visibilitychange', () => {
           if (document.hidden) {
             this.stop();
@@ -58,7 +89,7 @@
           }
         });
 
-        // Load saved theme (default to aqua underwater)
+        // Load saved theme or default to aqua
         const saved = localStorage.getItem('g1024_active_theme') || 'aqua';
         this.switchTheme(saved);
       } catch (err) {
@@ -69,7 +100,6 @@
     handleError: function(err) {
       this.errorCount++;
       console.error('[ThemeEngine Error Caught]:', err);
-      // Auto recovery: if errors repeat, safely reset entities without crashing the page
       if (this.errorCount < 4) {
         setTimeout(() => {
           try {
@@ -102,20 +132,14 @@
       } catch(e){}
       document.body.setAttribute('data-animated-theme', themeName);
 
-      // Manage underwater coral video / photo layer visibility
-      const bgVideo = document.getElementById('underwaterVideo');
-      const bgFallback = document.getElementById('underwaterFallback');
-      if (bgVideo && bgFallback) {
-        if (themeName === 'aqua') {
-          bgVideo.style.display = 'block';
-          bgFallback.style.display = 'block';
-          if (bgVideo.paused) bgVideo.play().catch(()=>{});
-        } else {
-          bgVideo.style.display = 'none';
-          bgFallback.style.display = 'none';
-          if (!bgVideo.paused) bgVideo.pause();
-        }
-      }
+      // Smooth 0.8s cross-fade layer management
+      const layerStargazer = document.getElementById('bgStargazer');
+      const layerAqua = document.getElementById('bgAqua');
+      const layerArctic = document.getElementById('bgArctic');
+
+      if (layerStargazer) layerStargazer.classList.toggle('active', themeName === 'stargazer');
+      if (layerAqua) layerAqua.classList.toggle('active', themeName === 'aqua');
+      if (layerArctic) layerArctic.classList.toggle('active', themeName === 'arctic');
 
       document.querySelectorAll('.theme-toggle-btn').forEach(btn => {
         btn.classList.toggle('active', btn.getAttribute('data-theme') === themeName);
@@ -131,27 +155,27 @@
       this.particles = [];
       this.creatures = [];
       this.meteors = [];
-      this.ambientWaves = [];
+      this.mistParticles = [];
 
       const w = this.width || window.innerWidth;
       const h = this.height || window.innerHeight;
       const scaleFactor = this.isMobile ? 0.55 : 1.0;
 
       if (this.currentTheme === 'stargazer') {
-        // Multi-tier 3D parallax stars with realistic color temperature & brightness
-        const starCount = Math.floor(95 * scaleFactor);
+        // Deep space cosmic dust & multi-tier 3D stars
+        const starCount = Math.floor(110 * scaleFactor);
         for (let i = 0; i < starCount; i++) {
-          const depth = Math.random(); // 0 (far away) to 1 (close foreground)
+          const depth = Math.random(); // 0 (far Z) to 1 (near Z)
           this.particles.push({
             x: Math.random() * w,
             y: Math.random() * h,
-            radius: depth * 1.8 + 0.5,
-            speed: depth * 0.45 + 0.06,
+            radius: depth * 1.9 + 0.4,
+            speed: depth * 0.4 + 0.05,
             depth: depth,
-            alpha: depth * 0.5 + 0.35,
-            twinkleFreq: Math.random() * 0.03 + 0.01,
+            alpha: depth * 0.6 + 0.3,
+            twinkleFreq: Math.random() * 0.035 + 0.015,
             twinkleOffset: Math.random() * Math.PI * 2,
-            color: depth > 0.8 ? '#e0f2fe' : (depth > 0.5 ? '#f8fafc' : (Math.random() < 0.3 ? '#c084fc' : '#bae6fd'))
+            color: depth > 0.8 ? '#ffffff' : (depth > 0.5 ? '#e0f2fe' : (Math.random() < 0.35 ? '#c084fc' : '#38bdf8'))
           });
         }
       } else if (this.currentTheme === 'aqua') {
@@ -170,14 +194,14 @@
           });
         }
 
-        // Realistic diverse marine life: Sea Turtles, Coral Fish, Blue Tangs, Moorish Angels & Manta
+        // Realistic marine life: Sea Turtles, Blue Tangs, Clownfish, Manta Rays
         const creatureCount = this.isMobile ? 8 : 14;
         const speciesList = [
-          { type: 'turtle', name: 'Sea Turtle', speedMult: 0.38, length: 50, scale: 0.85, alpha: 0.88 },
-          { type: 'tang', name: 'Blue Tang (Dory)', speedMult: 0.75, length: 30, scale: 0.8, body: '#1d4ed8', fin: '#facc15', belly: '#60a5fa', alpha: 0.85 },
-          { type: 'clown', name: 'Clownfish (Nemo)', speedMult: 0.65, length: 26, scale: 0.85, body: '#ea580c', fin: '#ffffff', belly: '#fb923c', alpha: 0.85 },
-          { type: 'angel', name: 'Moorish Idol', speedMult: 0.7, length: 34, scale: 0.85, body: '#0f172a', fin: '#facc15', belly: '#f8fafc', alpha: 0.85 },
-          { type: 'ray', name: 'Manta Ray', speedMult: 0.42, length: 58, scale: 0.8, alpha: 0.75 },
+          { type: 'turtle', name: 'Sea Turtle', speedMult: 0.36, length: 52, scale: 0.85, alpha: 0.9 },
+          { type: 'tang', name: 'Blue Tang (Dory)', speedMult: 0.72, length: 30, scale: 0.8, body: '#1d4ed8', fin: '#facc15', belly: '#60a5fa', alpha: 0.88 },
+          { type: 'clown', name: 'Clownfish (Nemo)', speedMult: 0.65, length: 26, scale: 0.85, body: '#ea580c', fin: '#ffffff', belly: '#fb923c', alpha: 0.88 },
+          { type: 'angel', name: 'Moorish Idol', speedMult: 0.7, length: 34, scale: 0.85, body: '#0f172a', fin: '#facc15', belly: '#f8fafc', alpha: 0.88 },
+          { type: 'ray', name: 'Manta Ray', speedMult: 0.4, length: 60, scale: 0.8, alpha: 0.78 },
           { type: 'emerald', name: 'Parrotfish', speedMult: 0.68, length: 32, scale: 0.8, body: '#059669', fin: '#34d399', belly: '#a7f3d0', alpha: 0.85 },
           { type: 'violet', name: 'Orchid Dottyback', speedMult: 0.8, length: 24, scale: 0.75, body: '#7c3aed', fin: '#c084fc', belly: '#ede9fe', alpha: 0.85 }
         ];
@@ -197,25 +221,38 @@
             flipperAngle: 0,
             species: spec,
             scale: spec.scale * (Math.random() * 0.25 + 0.85),
-            depth: Math.random() * 0.5 + 0.5 // depth layer for natural parallax
+            depth: Math.random() * 0.5 + 0.5
           });
         }
       } else if (this.currentTheme === 'arctic') {
-        // Multi-depth snowflakes with wind gusts
-        const snowCount = Math.floor(80 * scaleFactor);
+        // Multi-layered blizzard snowfall with depth (large slow foreground flakes, tiny fast background flakes)
+        const snowCount = Math.floor(95 * scaleFactor);
         for (let i = 0; i < snowCount; i++) {
-          const depth = Math.random();
+          const isForeground = Math.random() < 0.25;
+          const depth = isForeground ? (Math.random() * 0.3 + 0.7) : (Math.random() * 0.6 + 0.1);
           this.particles.push({
             x: Math.random() * w,
             y: Math.random() * h,
-            radius: depth * 2.8 + 1.0,
-            speedY: depth * 1.1 + 0.45,
-            speedX: depth * 0.4 + 0.15,
-            swayFreq: Math.random() * 0.02 + 0.012,
-            swayAmp: Math.random() * 1.8 + 0.8,
+            radius: isForeground ? (depth * 3.8 + 2.0) : (depth * 2.2 + 0.8),
+            speedY: isForeground ? (depth * 0.75 + 0.4) : (depth * 1.35 + 0.65), // Foreground flakes fall slow & float, background tiny fast
+            speedX: depth * 0.45 + 0.15,
+            swayFreq: Math.random() * 0.025 + 0.012,
+            swayAmp: isForeground ? 2.5 : 1.2,
             angle: Math.random() * Math.PI * 2,
-            alpha: depth * 0.55 + 0.35,
-            isCrystal: depth > 0.75 // detailed crystalline rendering for foreground flakes
+            alpha: isForeground ? 0.85 : (depth * 0.55 + 0.25),
+            isCrystal: isForeground
+          });
+        }
+
+        // Frosty mist hovering at bottom edges
+        const mistCount = 6;
+        for (let m = 0; m < mistCount; m++) {
+          this.mistParticles.push({
+            x: (w / (mistCount - 1)) * m,
+            y: h - Math.random() * 60,
+            radius: Math.random() * 120 + 160,
+            alpha: Math.random() * 0.08 + 0.04,
+            speed: (Math.random() * 0.2 + 0.1) * (m % 2 === 0 ? 1 : -1)
           });
         }
       }
@@ -229,6 +266,11 @@
         if (!this.running) return;
         const dt = Math.min((timestamp - this.lastTime) / 1000, 0.05);
         this.lastTime = timestamp;
+
+        // Smooth parallax interpolation
+        this.parallaxX += (this.targetParallaxX - this.parallaxX) * 0.06;
+        this.parallaxY += (this.targetParallaxY - this.parallaxY) * 0.06;
+
         try {
           this.render(dt, timestamp);
         } catch(err) {
@@ -264,23 +306,26 @@
     },
 
     /* ==========================================================================
-       1. STARGAZER RENDERING
+       1. STAR GAZER RENDERING (Moving Deep Space & Parallax)
        ========================================================================== */
     renderStargazer: function(ctx, w, h, dt, time) {
-      // Flowing luminous cosmic nebula clouds
-      const tSec = time * 0.0003;
-      const nebX = w * 0.35 + Math.sin(tSec) * 60;
-      const nebY = h * 0.28 + Math.cos(tSec * 0.8) * 50;
+      const px = this.parallaxX;
+      const py = this.parallaxY;
 
-      const nebulaGrad = ctx.createRadialGradient(nebX, nebY, 10, nebX, nebY, Math.max(w, h) * 0.65);
-      nebulaGrad.addColorStop(0, 'rgba(124, 58, 237, 0.09)');
-      nebulaGrad.addColorStop(0.4, 'rgba(79, 70, 229, 0.06)');
-      nebulaGrad.addColorStop(0.8, 'rgba(6, 182, 212, 0.03)');
-      nebulaGrad.addColorStop(1, 'rgba(3, 7, 18, 0)');
+      // Deep Nebula Clouds with Parallax
+      const tSec = time * 0.0003;
+      const nebX = w * 0.35 + Math.sin(tSec) * 60 + px * 0.5;
+      const nebY = h * 0.28 + Math.cos(tSec * 0.8) * 50 + py * 0.5;
+
+      const nebulaGrad = ctx.createRadialGradient(nebX, nebY, 10, nebX, nebY, Math.max(w, h) * 0.7);
+      nebulaGrad.addColorStop(0, 'rgba(168, 85, 247, 0.12)');
+      nebulaGrad.addColorStop(0.45, 'rgba(99, 102, 241, 0.07)');
+      nebulaGrad.addColorStop(0.8, 'rgba(56, 189, 248, 0.03)');
+      nebulaGrad.addColorStop(1, 'rgba(2, 7, 18, 0)');
       ctx.fillStyle = nebulaGrad;
       ctx.fillRect(0, 0, w, h);
 
-      // Parallax Stars with realistic twinkle & depth glow
+      // Stars drifting along depth with parallax response
       for (let i = 0; i < this.particles.length; i++) {
         const s = this.particles[i];
         s.y += s.speed * 60 * dt;
@@ -292,32 +337,34 @@
         const twinkle = Math.sin(time * s.twinkleFreq + s.twinkleOffset) * 0.3 + 0.7;
         const alpha = s.alpha * twinkle;
 
+        const starX = s.x + px * s.depth * 1.5;
+        const starY = s.y + py * s.depth * 1.5;
+
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.arc(starX, starY, s.radius, 0, Math.PI * 2);
         ctx.fillStyle = s.color;
         ctx.globalAlpha = alpha;
         ctx.fill();
 
-        // Extra soft glow halo for closer stars
         if (s.depth > 0.75) {
           ctx.beginPath();
-          ctx.arc(s.x, s.y, s.radius * 2.2, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(186, 230, 253, 0.15)';
+          ctx.arc(starX, starY, s.radius * 2.4, 0, Math.PI * 2);
+          ctx.fillStyle = 'rgba(192, 132, 252, 0.2)';
           ctx.fill();
         }
       }
       ctx.globalAlpha = 1.0;
 
-      // Realistic Shooting Star (Meteors) with glowing head & particle dust trail
+      // Faint Shooting Stars (Meteors) passing occasionally
       if (Math.random() < (this.isMobile ? 0.005 : 0.009) && this.meteors.length < 2) {
         this.meteors.push({
           x: Math.random() * (w * 0.85),
           y: Math.random() * (h * 0.35),
-          vx: Math.random() * 320 + 440,
+          vx: Math.random() * 340 + 460,
           vy: Math.random() * 200 + 260,
           len: Math.random() * 70 + 60,
           life: 1.0,
-          decay: Math.random() * 1.3 + 1.2
+          decay: Math.random() * 1.2 + 1.1
         });
       }
 
@@ -335,10 +382,9 @@
         const tailX = m.x - (m.vx * (m.len / 520));
         const tailY = m.y - (m.vy * (m.len / 520));
 
-        // Smooth fading gradient trail
         const mGrad = ctx.createLinearGradient(tailX, tailY, m.x, m.y);
         mGrad.addColorStop(0, 'rgba(255, 255, 255, 0)');
-        mGrad.addColorStop(0.6, "rgba(56, 189, 248, " + (m.life * 0.6) + ")");
+        mGrad.addColorStop(0.6, "rgba(192, 132, 252, " + (m.life * 0.6) + ")");
         mGrad.addColorStop(1, "rgba(255, 255, 255, " + (m.life * 0.98) + ")");
 
         ctx.strokeStyle = mGrad;
@@ -349,11 +395,10 @@
         ctx.lineTo(m.x, m.y);
         ctx.stroke();
 
-        // Glowing meteor head
         ctx.beginPath();
-        ctx.arc(m.x, m.y, 2.5, 0, Math.PI * 2);
+        ctx.arc(m.x, m.y, 2.6, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(255, 255, 255, " + m.life + ")";
-        ctx.shadowColor = '#38bdf8';
+        ctx.shadowColor = '#c084fc';
         ctx.shadowBlur = 10;
         ctx.fill();
         ctx.shadowBlur = 0;
@@ -361,10 +406,10 @@
     },
 
     /* ==========================================================================
-       2. AQUA DRIFT RENDERING
+       2. AQUA DRIFT RENDERING (Underwater Sunlight Rays, Marine Life & Bubbles)
        ========================================================================== */
     renderAqua: function(ctx, w, h, dt, time) {
-      // 1. Cinematic Volumetric Sunbeam God Rays Sweeping Down
+      // 1. Volumetric God Rays Sweeping Down
       ctx.save();
       const beamCount = this.isMobile ? 4 : 7;
       for (let b = 0; b < beamCount; b++) {
@@ -390,7 +435,7 @@
       }
       ctx.restore();
 
-      // 2. Animated Caustics Refraction Web across the Water Column
+      // 2. Animated Caustics Refraction Web
       ctx.save();
       ctx.globalCompositeOperation = 'screen';
       const causticIntensity = 0.06 + Math.sin(time * 0.0018) * 0.025;
@@ -402,13 +447,12 @@
       ctx.fillRect(0, 0, w, h);
       ctx.restore();
 
-      // Realistic swimming fish (smooth sine-wave swimming with multi-layer fins)
+      // 3. Swimming Marine Life (Sea Turtle, Tangs, Clownfish, Rays outside grid)
       for (let i = 0; i < this.creatures.length; i++) {
         const c = this.creatures[i];
         c.x += c.speed * 60 * dt;
         c.tailAngle += (c.speed > 0 ? 0.22 : -0.22);
 
-        // Screen wrap
         const bound = c.length * 1.5;
         if (c.dir > 0 && c.x > w + bound) {
           c.x = -bound;
@@ -428,17 +472,14 @@
         const sp = c.species.type;
 
         if (sp === 'turtle') {
-          // --- REALISTIC SEA TURTLE ---
           c.flipperAngle = Math.sin(time * 0.0035 + i) * 0.45;
 
-          // Back flippers
           ctx.fillStyle = '#1e3a1e';
           ctx.beginPath();
           ctx.ellipse(-c.length * 0.38, -c.length * 0.22, c.length * 0.18, c.length * 0.09, 0.4, 0, Math.PI * 2);
           ctx.ellipse(-c.length * 0.38, c.length * 0.22, c.length * 0.18, c.length * 0.09, -0.4, 0, Math.PI * 2);
           ctx.fill();
 
-          // Front swimming flippers (paddle wing motion)
           ctx.save();
           ctx.translate(c.length * 0.12, -c.length * 0.18);
           ctx.rotate(c.flipperAngle);
@@ -461,7 +502,6 @@
           ctx.fill();
           ctx.restore();
 
-          // Turtle Carapace (Oval Shell with scutes pattern)
           const shellGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, c.length * 0.45);
           shellGrad.addColorStop(0, '#854d0e');
           shellGrad.addColorStop(0.65, '#452b14');
@@ -474,12 +514,10 @@
           ctx.lineWidth = 1.2;
           ctx.stroke();
 
-          // Head & Neck
           ctx.fillStyle = '#3f6212';
           ctx.beginPath();
           ctx.ellipse(c.length * 0.48, 0, c.length * 0.16, c.length * 0.11, 0, 0, Math.PI * 2);
           ctx.fill();
-          // Eye
           ctx.fillStyle = '#fef08a';
           ctx.beginPath();
           ctx.arc(c.length * 0.52, -c.length * 0.04, 1.8, 0, Math.PI * 2);
@@ -490,7 +528,6 @@
           ctx.fill();
 
         } else if (sp === 'ray') {
-          // --- REALISTIC MANTA RAY ---
           const wingFlap = Math.sin(time * 0.003 + i) * 0.35;
           ctx.fillStyle = '#1e293b';
           ctx.beginPath();
@@ -500,17 +537,6 @@
           ctx.quadraticCurveTo(0, c.length * (0.65 + wingFlap), c.length * 0.4, 0);
           ctx.fill();
 
-          // Cephalic horns
-          ctx.beginPath();
-          ctx.moveTo(c.length * 0.35, -c.length * 0.08);
-          ctx.lineTo(c.length * 0.48, -c.length * 0.14);
-          ctx.lineTo(c.length * 0.38, -c.length * 0.04);
-          ctx.moveTo(c.length * 0.35, c.length * 0.08);
-          ctx.lineTo(c.length * 0.48, c.length * 0.14);
-          ctx.lineTo(c.length * 0.38, c.length * 0.04);
-          ctx.fill();
-
-          // Long whip-like tail
           ctx.strokeStyle = '#0f172a';
           ctx.lineWidth = 1.6;
           ctx.beginPath();
@@ -519,7 +545,6 @@
           ctx.stroke();
 
         } else {
-          // --- REALISTIC CORAL TROPICAL FISH (Clownfish, Blue Tang, Moorish Idol) ---
           const bodyGrad = ctx.createLinearGradient(0, -c.length * 0.3, 0, c.length * 0.3);
           bodyGrad.addColorStop(0, c.species.body);
           bodyGrad.addColorStop(0.65, c.species.fin);
@@ -532,9 +557,7 @@
           ctx.quadraticCurveTo(-c.length * 0.15, c.length * 0.32, -c.length * 0.55, 0);
           ctx.fill();
 
-          // Species distinctive patterns:
           if (sp === 'clown') {
-            // White stripes with black contour (Nemo)
             ctx.fillStyle = '#ffffff';
             ctx.strokeStyle = '#000000';
             ctx.lineWidth = 1;
@@ -545,7 +568,6 @@
               ctx.stroke();
             });
           } else if (sp === 'tang') {
-            // Black curved swoosh on royal blue body (Dory)
             ctx.strokeStyle = '#0f172a';
             ctx.lineWidth = 2.5;
             ctx.beginPath();
@@ -553,7 +575,6 @@
             ctx.stroke();
           }
 
-          // Dorsal Fin
           ctx.fillStyle = c.species.fin;
           ctx.beginPath();
           ctx.moveTo(-c.length * 0.15, -c.length * 0.24);
@@ -561,7 +582,6 @@
           ctx.closePath();
           ctx.fill();
 
-          // Lifelike Wiggling Tail Fin (Dual Lobe)
           const tailWiggle = Math.sin(c.tailAngle) * 8;
           ctx.fillStyle = c.species.fin;
           ctx.beginPath();
@@ -571,7 +591,6 @@
           ctx.closePath();
           ctx.fill();
 
-          // Eye
           ctx.fillStyle = '#ffffff';
           ctx.beginPath();
           ctx.arc(c.length * 0.32, -c.length * 0.06, 2, 0, Math.PI * 2);
@@ -586,7 +605,7 @@
       }
       ctx.globalAlpha = 1.0;
 
-      // Rising Shimmering Micro-bubbles with Dual Specular Highlights
+      // 4. Rising Shimmering Micro-bubbles
       for (let i = 0; i < this.particles.length; i++) {
         const b = this.particles[i];
         b.y -= b.speedY * 60 * dt;
@@ -598,40 +617,50 @@
           b.x = Math.random() * w;
         }
 
-        // Bubble Outer Rim
         ctx.beginPath();
         ctx.arc(wobbleX, b.y, b.radius, 0, Math.PI * 2);
         ctx.strokeStyle = "rgba(186, 230, 253, " + b.alpha + ")";
         ctx.lineWidth = 1.1;
         ctx.stroke();
 
-        // Specular Light Highlight (Top-left reflection)
         ctx.beginPath();
         ctx.arc(wobbleX - b.radius * 0.35, b.y - b.radius * 0.35, b.radius * 0.28, 0, Math.PI * 2);
         ctx.fillStyle = "rgba(255, 255, 255, " + (b.alpha * 0.85) + ")";
-        ctx.fill();
-
-        // Secondary subtle interior sheen
-        ctx.beginPath();
-        ctx.arc(wobbleX + b.radius * 0.2, b.y + b.radius * 0.2, b.radius * 0.15, 0, Math.PI * 2);
-        ctx.fillStyle = "rgba(56, 189, 248, " + (b.alpha * 0.5) + ")";
         ctx.fill();
       }
     },
 
     /* ==========================================================================
-       3. ARCTIC DRIFT RENDERING
+       3. ARCTIC DRIFT RENDERING (Multi-Layer Blizzard Snowfall & Frost Mist)
        ========================================================================== */
     renderArctic: function(ctx, w, h, dt, time) {
-      // Glacial ambient blizzard glow
+      // 1. Cool Glacial Frost Illumination
       const glow = ctx.createRadialGradient(w * 0.5, h * 0.75, 10, w * 0.5, h * 0.75, Math.max(w, h) * 0.75);
-      glow.addColorStop(0, 'rgba(186, 230, 253, 0.09)');
-      glow.addColorStop(0.5, 'rgba(56, 189, 248, 0.04)');
-      glow.addColorStop(1, 'rgba(8, 17, 30, 0)');
+      glow.addColorStop(0, 'rgba(186, 230, 253, 0.12)');
+      glow.addColorStop(0.5, 'rgba(56, 189, 248, 0.05)');
+      glow.addColorStop(1, 'rgba(5, 15, 30, 0)');
       ctx.fillStyle = glow;
       ctx.fillRect(0, 0, w, h);
 
-      // Realistic Snowfall with Horizontal Wind Sway & Crystalline Flares
+      // 2. Subtle Frosty Mist Hovering at Bottom Edges
+      for (let m = 0; m < this.mistParticles.length; m++) {
+        const mist = this.mistParticles[m];
+        mist.x += mist.speed * 60 * dt;
+        if (mist.x > w + mist.radius) mist.x = -mist.radius;
+        if (mist.x < -mist.radius) mist.x = w + mist.radius;
+
+        const mistGrad = ctx.createRadialGradient(mist.x, mist.y, 10, mist.x, mist.y, mist.radius);
+        mistGrad.addColorStop(0, "rgba(240, 249, 255, " + mist.alpha + ")");
+        mistGrad.addColorStop(0.6, "rgba(186, 230, 253, " + (mist.alpha * 0.4) + ")");
+        mistGrad.addColorStop(1, 'rgba(240, 249, 255, 0)');
+
+        ctx.fillStyle = mistGrad;
+        ctx.beginPath();
+        ctx.arc(mist.x, mist.y, mist.radius, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      // 3. Multi-Layer Blizzard Snowfall with Depth
       for (let i = 0; i < this.particles.length; i++) {
         const s = this.particles[i];
         s.y += s.speedY * 60 * dt;
@@ -646,10 +675,10 @@
         if (s.x > w + 15) s.x = -15;
 
         if (s.isCrystal) {
-          // Hexagonal crystalline snowflake flare for foreground
+          // Foreground large floating crystalline flakes
           ctx.strokeStyle = "rgba(255, 255, 255, " + s.alpha + ")";
-          ctx.lineWidth = 1;
-          const arm = s.radius * 1.25;
+          ctx.lineWidth = 1.2;
+          const arm = s.radius * 1.3;
 
           ctx.beginPath();
           ctx.moveTo(currentX - arm, s.y);
@@ -659,11 +688,14 @@
           ctx.stroke();
 
           ctx.beginPath();
-          ctx.arc(currentX, s.y, s.radius * 0.6, 0, Math.PI * 2);
+          ctx.arc(currentX, s.y, s.radius * 0.55, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(240, 249, 255, " + s.alpha + ")";
+          ctx.shadowColor = 'rgba(186, 230, 253, 0.6)';
+          ctx.shadowBlur = 6;
           ctx.fill();
+          ctx.shadowBlur = 0;
         } else {
-          // Soft depth-of-field blurred snowflake
+          // Background tiny fast drifting snowflakes
           ctx.beginPath();
           ctx.arc(currentX, s.y, s.radius, 0, Math.PI * 2);
           ctx.fillStyle = "rgba(240, 249, 255, " + s.alpha + ")";
