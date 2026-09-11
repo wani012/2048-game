@@ -245,6 +245,11 @@
   }
   .overlay-btn:hover{ background:#9f8b76; }
   .overlay-btn:disabled{ opacity:0.5; cursor:default; }
+  .overlay-btn.share-btn{
+    background:#25D366; color:#fff; display:inline-flex; align-items:center; gap:6px;
+    box-shadow:0 3px 8px rgba(37,211,102,0.3);
+  }
+  .overlay-btn.share-btn:hover{ background:#20bd5a; }
   /* ---- THUNDER FLASH EFFECT ---- */
   .thunder{position:fixed; inset:0; background:rgba(255,255,255,0.8); pointer-events:none; animation:thunderFlash 0.3s ease-out; z-index:1000;}
   @keyframes thunderFlash{0%{opacity:1;} 100%{opacity:0;}}
@@ -348,6 +353,7 @@
       <div class="overlay-title">You Win!</div>
       <div class="overlay-info" id="winInfo"></div>
       <div class="overlay-btns">
+        <button class="overlay-btn share-btn" id="winShareBtn">&#128293; Challenge Friend</button>
         <button class="overlay-btn" id="keepGoingBtn">Keep Going</button>
         <button class="overlay-btn" id="winNewBtn">New Game</button>
       </div>
@@ -362,6 +368,7 @@
         <input class="name-input" id="playerName" type="text" maxlength="16" placeholder="Your name...">
       </div>
       <div class="overlay-btns">
+        <button class="overlay-btn share-btn" id="overShareBtn">&#128293; Challenge on WhatsApp</button>
         <button class="overlay-btn" id="saveBtn">Save Score</button>
         <button class="overlay-btn" id="overNewBtn">Try Again</button>
       </div>
@@ -436,6 +443,7 @@ function updateGlobalBestIfHigher(newScore) {
   const winOverlay=$("winOverlay"), overOverlay=$("overOverlay");
   const winInfo=$("winInfo"), overInfo=$("overInfo");
   const keepGoingBtn=$("keepGoingBtn"), winNewBtn=$("winNewBtn"), overNewBtn=$("overNewBtn");
+  const winShareBtn=$("winShareBtn"), overShareBtn=$("overShareBtn");
   const moveEl=$("moveCount"), timerEl=$("timerDisplay");
   const nameRow=$("nameRow"), nameEl=$("playerName"), saveBtn=$("saveBtn");
   const lbList=$("lbList");
@@ -671,6 +679,19 @@ function updateGlobalBestIfHigher(newScore) {
     addLB(nameEl.value.trim(),score);
     nameRow.style.display="none"; saveBtn.textContent="Saved!"; saveBtn.disabled=true;
   });
+
+  function shareScore(statusText){
+    const shareUrl = "https://wani012.github.io/2048-game/";
+    const text = `🔥 ${statusText} in 1024 Puzzle Game!\nScore: ${score.toLocaleString()} | Moves: ${moves} | Time: ${timerEl.textContent}\nCan you beat my record? Play here: ${shareUrl}`;
+    if(navigator.share){
+      navigator.share({ title:"1024 Puzzle Challenge", text:text, url:shareUrl }).catch(()=>{});
+    }else{
+      const waUrl = `https://api.whatsapp.com/send?text=${encodeURIComponent(text)}`;
+      window.open(waUrl, "_blank");
+    }
+  }
+  if(winShareBtn) winShareBtn.addEventListener("click",()=>shareScore("I reached the 1024 tile & WON!"));
+  if(overShareBtn) overShareBtn.addEventListener("click",()=>shareScore(`I scored ${score.toLocaleString()} points`));
 
   /* ------ KEYBOARD ------ */
   const KEYS={ArrowUp:"up",ArrowDown:"down",ArrowLeft:"left",ArrowRight:"right",w:"up",s:"down",a:"left",d:"right",W:"up",S:"down",A:"left",D:"right"};
