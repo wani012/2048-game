@@ -410,6 +410,65 @@
     box-shadow:0 2px 6px rgba(0,0,0,0.1); font-family:inherit;
   }
 
+  /* ---- FIRE HUB MODAL (Add to Home Screen & Share) ---- */
+  .fire-modal-overlay{
+    position:fixed; inset:0;
+    background:rgba(0,0,0,0.65);
+    backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center;
+    z-index:9999; opacity:0; pointer-events:none;
+    transition:opacity 0.25s ease; padding:16px;
+  }
+  .fire-modal-overlay.show{ opacity:1; pointer-events:auto; }
+  .fire-modal{
+    background:var(--ui-bg); border:1px solid rgba(255,255,255,0.2);
+    border-radius:22px; max-width:360px; width:100%; padding:20px;
+    box-shadow:0 24px 60px rgba(0,0,0,0.45);
+    transform:scale(0.92) translateY(12px);
+    transition:transform 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    color:#fff; position:relative; font-family:inherit;
+  }
+  .fire-modal-overlay.show .fire-modal{ transform:scale(1) translateY(0); }
+  .fire-modal-header{
+    display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;
+  }
+  .fire-modal-title{
+    font-size:17px; font-weight:900; display:flex; align-items:center; gap:8px;
+    color:#fff; letter-spacing:-0.2px;
+  }
+  .fire-modal-close{
+    background:rgba(255,255,255,0.15); border:none; color:#fff;
+    width:32px; height:32px; border-radius:50%; font-size:20px; line-height:1;
+    display:flex; align-items:center; justify-content:center;
+    cursor:pointer; transition:background 0.15s, transform 0.15s;
+  }
+  .fire-modal-close:hover{ background:rgba(255,255,255,0.25); transform:scale(1.06); }
+  .fire-modal-options{ display:flex; flex-direction:column; gap:10px; }
+  .fire-opt-btn{
+    display:flex; align-items:center; gap:14px; padding:14px 16px;
+    background:rgba(255,255,255,0.09); border:1px solid rgba(255,255,255,0.14);
+    border-radius:14px; color:#fff; text-align:left; cursor:pointer;
+    transition:background 0.15s, transform 0.15s, border-color 0.15s;
+    font-family:inherit; width:100%;
+  }
+  .fire-opt-btn:hover{
+    background:rgba(255,255,255,0.18); transform:translateY(-2px);
+    border-color:rgba(255,255,255,0.32);
+  }
+  .fire-opt-btn:active{ transform:scale(0.98); }
+  .fire-opt-btn.highlight{
+    background:linear-gradient(135deg, #10b981 0%, #059669 100%);
+    border-color:rgba(255,255,255,0.3);
+    box-shadow:0 6px 18px rgba(16,185,129,0.35);
+  }
+  .fire-opt-btn.highlight:hover{
+    background:linear-gradient(135deg, #12c78b 0%, #06a372 100%);
+  }
+  .fire-opt-icon{ font-size:24px; line-height:1; flex-shrink:0; }
+  .fire-opt-info{ flex:1; }
+  .fire-opt-heading{ font-size:14px; font-weight:800; display:block; margin-bottom:2px; color:#fff; }
+  .fire-opt-sub{ font-size:11px; opacity:0.88; font-weight:500; display:block; line-height:1.3; color:#fff; }
+
   /* ---- THUNDER FLASH EFFECT ---- */
   .thunder{position:fixed; inset:0; background:rgba(255,255,255,0.8); pointer-events:none; animation:thunderFlash 0.3s ease-out; z-index:1000;}
   @keyframes thunderFlash{0%{opacity:1;} 100%{opacity:0;}}
@@ -516,7 +575,7 @@
     <button class="icon-btn" id="newGameBtn" data-tip="New Game" title="New Game">&#9654;</button>
     <button class="icon-btn" id="undoBtn" disabled data-tip="Undo Move" title="Undo">&#8617;</button>
     <button class="icon-btn" id="soundBtn" data-tip="Sound" title="Toggle Sound"><span id="soundIcon">&#128264;</span></button>
-    <button class="icon-btn share-icon" id="topShareBtn" data-tip="Share on WhatsApp" title="Challenge Friend">&#128293;</button>
+    <button class="icon-btn share-icon" id="topShareBtn" data-tip="Add to Home / Share" title="Add to Home Screen & Share">&#128293;</button>
   </div>
 
   <!-- Power-Up Boosters Row (Style 3 Icon Badges) -->
@@ -576,6 +635,39 @@
     <div id="lbList"></div>
   </div>
 
+  <!-- Fire Hub Modal (Add to Home Screen & Share) -->
+  <div class="fire-modal-overlay" id="fireModalOverlay">
+    <div class="fire-modal" id="fireModal">
+      <div class="fire-modal-header">
+        <div class="fire-modal-title">&#128293; 1024 Quick Hub</div>
+        <button class="fire-modal-close" id="closeFireModal" aria-label="Close">&times;</button>
+      </div>
+      <div class="fire-modal-options">
+        <button class="fire-opt-btn highlight" id="fireInstallBtn">
+          <span class="fire-opt-icon">&#128242;</span>
+          <div class="fire-opt-info">
+            <span class="fire-opt-heading">Add to Home Screen</span>
+            <span class="fire-opt-sub">Install on phone for fast offline play</span>
+          </div>
+        </button>
+        <button class="fire-opt-btn" id="fireShareBtn">
+          <span class="fire-opt-icon">&#128172;</span>
+          <div class="fire-opt-info">
+            <span class="fire-opt-heading">Challenge on WhatsApp</span>
+            <span class="fire-opt-sub">Share your score & challenge friends</span>
+          </div>
+        </button>
+        <button class="fire-opt-btn" id="fireCopyBtn">
+          <span class="fire-opt-icon">&#128203;</span>
+          <div class="fire-opt-info">
+            <span class="fire-opt-heading">Copy Game Link</span>
+            <span class="fire-opt-sub">Direct link to play anytime</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
 </div>
 <script>
 (function(){
@@ -608,6 +700,9 @@
   const hammerCountEl=$("hammerCount"), shuffleCountEl=$("shuffleCount");
   const modeClassic=$("modeClassic"), modeBlitz=$("modeBlitz"), modeDaily=$("modeDaily");
   const installBanner=$("installBanner"), installBtn=$("installBtn");
+  const fireModalOverlay=$("fireModalOverlay"), closeFireModal=$("closeFireModal");
+  const fireInstallBtn=$("fireInstallBtn"), fireShareBtn=$("fireShareBtn"), fireCopyBtn=$("fireCopyBtn");
+  let deferredPrompt;
 
   function updateGlobalBestIfHigher(newScore) {
     if (newScore > best) {
@@ -949,7 +1044,75 @@
       window.open(waUrl, "_blank");
     }
   }
-  if(topShareBtn) topShareBtn.addEventListener("click",()=>shareScore(score > 0 ? `I have ${score.toLocaleString()} points` : "Check out this puzzle"));
+  /* ------ FIRE HUB MODAL (Add to Home & Share) ------ */
+  function openFireModal(){
+    if(!fireModalOverlay) return;
+    fireModalOverlay.classList.add("show");
+  }
+  function hideFireModal(){
+    if(!fireModalOverlay) return;
+    fireModalOverlay.classList.remove("show");
+  }
+  if(topShareBtn) topShareBtn.addEventListener("click", openFireModal);
+  if(closeFireModal) closeFireModal.addEventListener("click", hideFireModal);
+  if(fireModalOverlay){
+    fireModalOverlay.addEventListener("click", e => {
+      if(e.target === fireModalOverlay) hideFireModal();
+    });
+  }
+  window.addEventListener("keydown", e => {
+    if(e.key === "Escape" && fireModalOverlay && fireModalOverlay.classList.contains("show")){
+      hideFireModal();
+    }
+  });
+
+  if(fireInstallBtn){
+    fireInstallBtn.addEventListener("click", async () => {
+      hideFireModal();
+      const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      if (isStandalone) {
+        showToast("Already installed on your device! 📲✅");
+        return;
+      }
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+          showToast("Installing 1024 to Home Screen... 📲✨");
+          if (installBanner) installBanner.style.display = "none";
+        }
+        deferredPrompt = null;
+      } else if (/iphone|ipad|ipod/i.test(navigator.userAgent)) {
+        showToast("iOS: Tap Share ⬆️ and select 'Add to Home Screen' 📲");
+      } else {
+        showToast("Tap browser menu (⋮) -> 'Add to Home screen' 📲");
+      }
+    });
+  }
+
+  if(fireShareBtn){
+    fireShareBtn.addEventListener("click", () => {
+      hideFireModal();
+      shareScore(score > 0 ? `I have ${score.toLocaleString()} points` : "Check out this puzzle");
+    });
+  }
+
+  if(fireCopyBtn){
+    fireCopyBtn.addEventListener("click", () => {
+      hideFireModal();
+      const shareUrl = window.location.origin + window.location.pathname;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareUrl).then(() => {
+          showToast("Game link copied! 📋");
+        }).catch(() => {
+          showToast("Game link: " + shareUrl);
+        });
+      } else {
+        showToast("Game link: " + shareUrl);
+      }
+    });
+  }
+
   if(winShareBtn) winShareBtn.addEventListener("click",()=>shareScore("I reached the 1024 tile & WON!"));
   if(overShareBtn) overShareBtn.addEventListener("click",()=>shareScore(`I scored ${score.toLocaleString()} points`));
 
@@ -998,7 +1161,6 @@
   modeDaily.addEventListener("click",()=>setGameMode("daily"));
 
   /* ------ PWA SERVICE WORKER & INSTALL PROMPT ------ */
-  let deferredPrompt;
   window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault();
     deferredPrompt = e;
