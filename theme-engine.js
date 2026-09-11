@@ -170,29 +170,34 @@
           });
         }
 
-        // Realistic aquatic creatures (Fish with dorsal fin, belly shading, and lifelike wiggling tails)
-        const fishCount = this.isMobile ? 5 : 8;
-        const fishSpecies = [
-          { name: 'cyan', body: '#0284c7', fin: '#38bdf8', belly: '#e0f2fe', alpha: 0.6 },
-          { name: 'orange', body: '#ea580c', fin: '#fb923c', belly: '#ffedd5', alpha: 0.65 },
-          { name: 'emerald', body: '#059669', fin: '#34d399', belly: '#d1fae5', alpha: 0.55 },
-          { name: 'violet', body: '#7c3aed', fin: '#a78bfa', belly: '#ede9fe', alpha: 0.6 }
+        // Realistic diverse marine life: Sea Turtles, Coral Fish, Blue Tangs, Moorish Angels & Manta
+        const creatureCount = this.isMobile ? 8 : 14;
+        const speciesList = [
+          { type: 'turtle', name: 'Sea Turtle', speedMult: 0.38, length: 50, scale: 0.85, alpha: 0.88 },
+          { type: 'tang', name: 'Blue Tang (Dory)', speedMult: 0.75, length: 30, scale: 0.8, body: '#1d4ed8', fin: '#facc15', belly: '#60a5fa', alpha: 0.85 },
+          { type: 'clown', name: 'Clownfish (Nemo)', speedMult: 0.65, length: 26, scale: 0.85, body: '#ea580c', fin: '#ffffff', belly: '#fb923c', alpha: 0.85 },
+          { type: 'angel', name: 'Moorish Idol', speedMult: 0.7, length: 34, scale: 0.85, body: '#0f172a', fin: '#facc15', belly: '#f8fafc', alpha: 0.85 },
+          { type: 'ray', name: 'Manta Ray', speedMult: 0.42, length: 58, scale: 0.8, alpha: 0.75 },
+          { type: 'emerald', name: 'Parrotfish', speedMult: 0.68, length: 32, scale: 0.8, body: '#059669', fin: '#34d399', belly: '#a7f3d0', alpha: 0.85 },
+          { type: 'violet', name: 'Orchid Dottyback', speedMult: 0.8, length: 24, scale: 0.75, body: '#7c3aed', fin: '#c084fc', belly: '#ede9fe', alpha: 0.85 }
         ];
 
-        for (let i = 0; i < fishCount; i++) {
+        for (let i = 0; i < creatureCount; i++) {
           const dir = Math.random() < 0.5 ? 1 : -1;
-          const species = fishSpecies[i % fishSpecies.length];
+          const spec = speciesList[i % speciesList.length];
           this.creatures.push({
             x: Math.random() * w,
-            y: Math.random() * (h * 0.82) + h * 0.09,
-            length: Math.random() * 16 + 22,
-            speed: (Math.random() * 0.65 + 0.55) * dir,
+            y: Math.random() * (h * 0.80) + h * 0.08,
+            length: spec.length * (Math.random() * 0.3 + 0.85),
+            speed: (Math.random() * 0.45 + 0.45) * spec.speedMult * dir,
             dir: dir,
-            freq: Math.random() * 0.04 + 0.02,
-            amp: Math.random() * 12 + 6,
-            tailAngle: Math.random() * Math.PI,
-            species: species,
-            scale: Math.random() * 0.35 + 0.75
+            freq: Math.random() * 0.035 + 0.02,
+            amp: Math.random() * 14 + 6,
+            tailAngle: Math.random() * Math.PI * 2,
+            flipperAngle: 0,
+            species: spec,
+            scale: spec.scale * (Math.random() * 0.25 + 0.85),
+            depth: Math.random() * 0.5 + 0.5 // depth layer for natural parallax
           });
         }
       } else if (this.currentTheme === 'arctic') {
@@ -377,12 +382,13 @@
         c.tailAngle += (c.speed > 0 ? 0.22 : -0.22);
 
         // Screen wrap
-        if (c.dir > 0 && c.x > w + 70) {
-          c.x = -70;
-          c.y = Math.random() * (h * 0.82) + h * 0.09;
-        } else if (c.dir < 0 && c.x < -70) {
-          c.x = w + 70;
-          c.y = Math.random() * (h * 0.82) + h * 0.09;
+        const bound = c.length * 1.5;
+        if (c.dir > 0 && c.x > w + bound) {
+          c.x = -bound;
+          c.y = Math.random() * (h * 0.80) + h * 0.08;
+        } else if (c.dir < 0 && c.x < -bound) {
+          c.x = w + bound;
+          c.y = Math.random() * (h * 0.80) + h * 0.08;
         }
 
         const waveY = c.y + Math.sin(time * 0.0025 * c.freq * 100 + i) * c.amp;
@@ -392,46 +398,162 @@
         ctx.scale(c.scale * c.dir, c.scale);
         ctx.globalAlpha = c.species.alpha;
 
-        // Fish Body with natural gradient depth
-        const bodyGrad = ctx.createLinearGradient(0, -c.length * 0.3, 0, c.length * 0.3);
-        bodyGrad.addColorStop(0, c.species.body);
-        bodyGrad.addColorStop(0.65, c.species.fin);
-        bodyGrad.addColorStop(1, c.species.belly);
-        ctx.fillStyle = bodyGrad;
+        const sp = c.species.type;
 
-        ctx.beginPath();
-        ctx.moveTo(-c.length * 0.55, 0);
-        ctx.quadraticCurveTo(-c.length * 0.15, -c.length * 0.32, c.length * 0.52, 0);
-        ctx.quadraticCurveTo(-c.length * 0.15, c.length * 0.32, -c.length * 0.55, 0);
-        ctx.fill();
+        if (sp === 'turtle') {
+          // --- REALISTIC SEA TURTLE ---
+          c.flipperAngle = Math.sin(time * 0.0035 + i) * 0.45;
 
-        // Dorsal Fin
-        ctx.fillStyle = c.species.fin;
-        ctx.beginPath();
-        ctx.moveTo(-c.length * 0.1, -c.length * 0.25);
-        ctx.quadraticCurveTo(c.length * 0.1, -c.length * 0.45, c.length * 0.25, -c.length * 0.15);
-        ctx.closePath();
-        ctx.fill();
+          // Back flippers
+          ctx.fillStyle = '#1e3a1e';
+          ctx.beginPath();
+          ctx.ellipse(-c.length * 0.38, -c.length * 0.22, c.length * 0.18, c.length * 0.09, 0.4, 0, Math.PI * 2);
+          ctx.ellipse(-c.length * 0.38, c.length * 0.22, c.length * 0.18, c.length * 0.09, -0.4, 0, Math.PI * 2);
+          ctx.fill();
 
-        // Realistic Wiggling Tail Fin (Dual Lobe)
-        const tailWiggle = Math.sin(c.tailAngle) * 7.5;
-        ctx.fillStyle = c.species.fin;
-        ctx.beginPath();
-        ctx.moveTo(-c.length * 0.52, 0);
-        ctx.lineTo(-c.length * 0.96, -c.length * 0.34 + tailWiggle);
-        ctx.quadraticCurveTo(-c.length * 0.78, tailWiggle * 0.5, -c.length * 0.96, c.length * 0.34 + tailWiggle);
-        ctx.closePath();
-        ctx.fill();
+          // Front swimming flippers (paddle wing motion)
+          ctx.save();
+          ctx.translate(c.length * 0.12, -c.length * 0.18);
+          ctx.rotate(c.flipperAngle);
+          ctx.fillStyle = '#2d5a27';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(c.length * 0.25, -c.length * 0.48, c.length * 0.42, -c.length * 0.38);
+          ctx.quadraticCurveTo(c.length * 0.28, -c.length * 0.1, 0, 0);
+          ctx.fill();
+          ctx.restore();
 
-        // Subtle Eye
-        ctx.fillStyle = '#ffffff';
-        ctx.beginPath();
-        ctx.arc(c.length * 0.32, -c.length * 0.06, 1.8, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.fillStyle = '#020617';
-        ctx.beginPath();
-        ctx.arc(c.length * 0.34, -c.length * 0.06, 0.9, 0, Math.PI * 2);
-        ctx.fill();
+          ctx.save();
+          ctx.translate(c.length * 0.12, c.length * 0.18);
+          ctx.rotate(-c.flipperAngle);
+          ctx.fillStyle = '#2d5a27';
+          ctx.beginPath();
+          ctx.moveTo(0, 0);
+          ctx.quadraticCurveTo(c.length * 0.25, c.length * 0.48, c.length * 0.42, c.length * 0.38);
+          ctx.quadraticCurveTo(c.length * 0.28, c.length * 0.1, 0, 0);
+          ctx.fill();
+          ctx.restore();
+
+          // Turtle Carapace (Oval Shell with scutes pattern)
+          const shellGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, c.length * 0.45);
+          shellGrad.addColorStop(0, '#854d0e');
+          shellGrad.addColorStop(0.65, '#452b14');
+          shellGrad.addColorStop(1, '#1c1917');
+          ctx.fillStyle = shellGrad;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, c.length * 0.45, c.length * 0.32, 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.strokeStyle = '#a16207';
+          ctx.lineWidth = 1.2;
+          ctx.stroke();
+
+          // Head & Neck
+          ctx.fillStyle = '#3f6212';
+          ctx.beginPath();
+          ctx.ellipse(c.length * 0.48, 0, c.length * 0.16, c.length * 0.11, 0, 0, Math.PI * 2);
+          ctx.fill();
+          // Eye
+          ctx.fillStyle = '#fef08a';
+          ctx.beginPath();
+          ctx.arc(c.length * 0.52, -c.length * 0.04, 1.8, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#000';
+          ctx.beginPath();
+          ctx.arc(c.length * 0.53, -c.length * 0.04, 1, 0, Math.PI * 2);
+          ctx.fill();
+
+        } else if (sp === 'ray') {
+          // --- REALISTIC MANTA RAY ---
+          const wingFlap = Math.sin(time * 0.003 + i) * 0.35;
+          ctx.fillStyle = '#1e293b';
+          ctx.beginPath();
+          ctx.moveTo(c.length * 0.4, 0);
+          ctx.quadraticCurveTo(0, -c.length * (0.65 + wingFlap), -c.length * 0.25, -c.length * 0.15);
+          ctx.quadraticCurveTo(-c.length * 0.45, 0, -c.length * 0.25, c.length * 0.15);
+          ctx.quadraticCurveTo(0, c.length * (0.65 + wingFlap), c.length * 0.4, 0);
+          ctx.fill();
+
+          // Cephalic horns
+          ctx.beginPath();
+          ctx.moveTo(c.length * 0.35, -c.length * 0.08);
+          ctx.lineTo(c.length * 0.48, -c.length * 0.14);
+          ctx.lineTo(c.length * 0.38, -c.length * 0.04);
+          ctx.moveTo(c.length * 0.35, c.length * 0.08);
+          ctx.lineTo(c.length * 0.48, c.length * 0.14);
+          ctx.lineTo(c.length * 0.38, c.length * 0.04);
+          ctx.fill();
+
+          // Long whip-like tail
+          ctx.strokeStyle = '#0f172a';
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(-c.length * 0.28, 0);
+          ctx.quadraticCurveTo(-c.length * 0.6, Math.sin(time * 0.004) * 6, -c.length * 1.1, 0);
+          ctx.stroke();
+
+        } else {
+          // --- REALISTIC CORAL TROPICAL FISH (Clownfish, Blue Tang, Moorish Idol) ---
+          const bodyGrad = ctx.createLinearGradient(0, -c.length * 0.3, 0, c.length * 0.3);
+          bodyGrad.addColorStop(0, c.species.body);
+          bodyGrad.addColorStop(0.65, c.species.fin);
+          bodyGrad.addColorStop(1, c.species.belly);
+          ctx.fillStyle = bodyGrad;
+
+          ctx.beginPath();
+          ctx.moveTo(-c.length * 0.55, 0);
+          ctx.quadraticCurveTo(-c.length * 0.15, -c.length * 0.32, c.length * 0.52, 0);
+          ctx.quadraticCurveTo(-c.length * 0.15, c.length * 0.32, -c.length * 0.55, 0);
+          ctx.fill();
+
+          // Species distinctive patterns:
+          if (sp === 'clown') {
+            // White stripes with black contour (Nemo)
+            ctx.fillStyle = '#ffffff';
+            ctx.strokeStyle = '#000000';
+            ctx.lineWidth = 1;
+            [-c.length * 0.15, c.length * 0.15].forEach(sx => {
+              ctx.beginPath();
+              ctx.ellipse(sx, 0, c.length * 0.08, c.length * 0.26, 0, 0, Math.PI * 2);
+              ctx.fill();
+              ctx.stroke();
+            });
+          } else if (sp === 'tang') {
+            // Black curved swoosh on royal blue body (Dory)
+            ctx.strokeStyle = '#0f172a';
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(-c.length * 0.08, 0, c.length * 0.22, -0.8, 0.8);
+            ctx.stroke();
+          }
+
+          // Dorsal Fin
+          ctx.fillStyle = c.species.fin;
+          ctx.beginPath();
+          ctx.moveTo(-c.length * 0.15, -c.length * 0.24);
+          ctx.quadraticCurveTo(c.length * 0.1, -c.length * (sp === 'angel' ? 0.65 : 0.42), c.length * 0.25, -c.length * 0.14);
+          ctx.closePath();
+          ctx.fill();
+
+          // Lifelike Wiggling Tail Fin (Dual Lobe)
+          const tailWiggle = Math.sin(c.tailAngle) * 8;
+          ctx.fillStyle = c.species.fin;
+          ctx.beginPath();
+          ctx.moveTo(-c.length * 0.52, 0);
+          ctx.lineTo(-c.length * 0.96, -c.length * 0.34 + tailWiggle);
+          ctx.quadraticCurveTo(-c.length * 0.76, tailWiggle * 0.5, -c.length * 0.96, c.length * 0.34 + tailWiggle);
+          ctx.closePath();
+          ctx.fill();
+
+          // Eye
+          ctx.fillStyle = '#ffffff';
+          ctx.beginPath();
+          ctx.arc(c.length * 0.32, -c.length * 0.06, 2, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#020617';
+          ctx.beginPath();
+          ctx.arc(c.length * 0.34, -c.length * 0.06, 1.1, 0, Math.PI * 2);
+          ctx.fill();
+        }
 
         ctx.restore();
       }
