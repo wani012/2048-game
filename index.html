@@ -3,7 +3,62 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>2048</title>
+
+<!-- Primary SEO Meta Tags -->
+<title>1024 & 2048 Puzzle Game - Play Online Free</title>
+<meta name="title" content="1024 & 2048 Puzzle Game - Play Online Free">
+<meta name="description" content="Play the addictive 1024 & 2048 number puzzle game online for free! Start with 1, 2, 4, merge tiles, beat global high scores, and reach 1024 with multiple themes and sound effects.">
+<meta name="keywords" content="1024 game, 2048 game, play 1024 online, 2048 puzzle, number game, math puzzle game, merge tiles, brain game, free online games, mobile friendly puzzle">
+<meta name="robots" content="index, follow">
+<meta name="language" content="English">
+<meta name="author" content="wani012">
+<link rel="canonical" href="https://wani012.github.io/2048-game/">
+
+<!-- Open Graph / Facebook -->
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://wani012.github.io/2048-game/">
+<meta property="og:title" content="1024 & 2048 Puzzle Game - Play Online Free">
+<meta property="og:description" content="Challenge your brain! Merge tiles starting from 1, reach 1024, and compete for the top spot on the live leaderboard.">
+<meta property="og:image" content="https://wani012.github.io/2048-game/preview.png">
+
+<!-- Twitter Cards -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:url" content="https://wani012.github.io/2048-game/">
+<meta name="twitter:title" content="1024 & 2048 Puzzle Game - Play Online Free">
+<meta name="twitter:description" content="Play the free 1024 / 2048 tile puzzle game. Smooth controls, multiple themes, and instant global best score tracking!">
+<meta name="twitter:image" content="https://wani012.github.io/2048-game/preview.png">
+
+<!-- Mobile App & Theme Meta -->
+<meta name="theme-color" content="#faf8ef">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="1024 Game">
+
+<!-- Favicon SVG -->
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%23edc53f'/><text x='50%' y='58%' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='38' font-weight='900' fill='%23ffffff'>1024</text></svg>">
+
+<!-- Schema.org JSON-LD Structured Data for Google Rich Snippets -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "1024 Puzzle Game",
+  "url": "https://wani012.github.io/2048-game/",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "All",
+  "genre": "Puzzle",
+  "description": "A fun and addictive online 1024 and 2048 number puzzle game. Merge matching tiles to reach 1024!",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  },
+  "author": {
+    "@type": "Person",
+    "name": "wani012"
+  }
+}
+</script>
 <style>
   :root{
     --board-bg:#bbada0; --cell-bg:#cdc1b4; --text-dark:#776e65;
@@ -151,6 +206,7 @@
   }
   @keyframes pop-in{ 0%{transform:scale(0);} 80%{transform:scale(1.1);} 100%{transform:scale(1);} }
 
+  .v1{ background:#d6c7b5; color:#776e65; }
   .v2{ background:#eee4da; color:#776e65; }
   .v4{ background:#ede0c8; color:#776e65; }
   .v8{ background:#f2b179; color:#f9f6f2; }
@@ -189,6 +245,9 @@
   }
   .overlay-btn:hover{ background:#9f8b76; }
   .overlay-btn:disabled{ opacity:0.5; cursor:default; }
+  /* ---- THUNDER FLASH EFFECT ---- */
+  .thunder{position:fixed; inset:0; background:rgba(255,255,255,0.8); pointer-events:none; animation:thunderFlash 0.3s ease-out; z-index:1000;}
+  @keyframes thunderFlash{0%{opacity:1;} 100%{opacity:0;}}
 
   .name-row{ display:flex; flex-direction:column; align-items:center; gap:6px; margin-bottom:12px; }
   .name-label{ font-size:12px; color:var(--info-color); font-weight:600; }
@@ -234,7 +293,7 @@
 
   <!-- Header -->
   <div class="header">
-    <h1 class="title">2048</h1>
+    <h1 class="title">1024</h1>
     <div class="scores">
       <div class="score-box">
         <div class="score-label">SCORE</div>
@@ -248,7 +307,7 @@
   </div>
 
   <!-- Tagline -->
-  <div class="tagline">Join the tiles, get to <strong>2048!</strong></div>
+  <div class="tagline">Join the tiles, get to <strong>1024!</strong></div>
 
   <!-- Stats always visible -->
   <div class="stats-row">
@@ -311,8 +370,8 @@
 
   <!-- How to play -->
   <div class="how-to">
-    <strong>HOW TO PLAY:</strong> Use Arrow keys / WASD / Swipe to move tiles.
-    Tiles with the same number merge when they touch!
+    <strong>HOW TO PLAY:</strong> Use <strong>Arrow keys</strong>, <strong>WASD</strong>, or <strong>Swipe</strong> to move the tiles.
+    Start with <strong>1</strong>, combine identical numbers (1+1=2, 2+2=4, 4+4=8...) to reach the elusive <strong>1024 tile!</strong>
   </div>
 
   <!-- Leaderboard always visible -->
@@ -322,16 +381,47 @@
   </div>
 
 </div>
-
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 (function(){
   "use strict";
 
   const SIZE = 4;
-  const K_BEST  = "g2048_best";
-  const K_LB    = "g2048_lb";
-  const K_THEME = "g2048_theme";
-  const K_SOUND = "g2048_sound";
+const K_BEST  = "g2048_best"; // kept for fallback if needed
+const K_LB    = "g2048_lb";
+const K_THEME = "g2048_theme";
+const K_SOUND = "g2048_sound";
+
+// --- Firebase configuration (replace placeholders with your project values) ---
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const bestRef = db.ref('globalBest');
+// Load the global best from Firebase on page load
+bestRef.once('value').then(snap => {
+  const remoteBest = snap.val();
+  best = remoteBest ?? 0;
+  bestEl.textContent = best;
+});
+// Helper to update the global best when a higher score is achieved
+function updateGlobalBestIfHigher(newScore) {
+  if (newScore > best) {
+    best = newScore;
+    bestEl.textContent = best;
+    bestRef.set(best);
+  }
+}
+
 
   let board=[], prevBoard=null, prevScore=0, prevMoves=0;
   let score=0, best=0, moves=0;
@@ -412,14 +502,22 @@
     },1000);
   }
   function stopTimer(){ clearInterval(timerInt); }
+  // ---- THUNDER FLASH ----
+  function flashThunder(){
+    const el=document.createElement('div');
+    el.className='thunder';
+    document.body.appendChild(el);
+    // remove after animation (300ms)
+    setTimeout(()=>{ el.remove(); }, 350);
+  }
 
   /* ------ LEADERBOARD ------ */
   function loadLB(){ try{ return JSON.parse(localStorage.getItem(K_LB))||[]; }catch(e){ return[]; } }
   function saveLB(lb){ localStorage.setItem(K_LB,JSON.stringify(lb)); }
   function addLB(name,sc){
     const lb=loadLB();
-    lb.push({name:name||"Anonymous",score:sc,moves,time:timerEl.textContent});
-    lb.sort((a,b)=>b.score-a.score); lb.splice(5); saveLB(lb); renderLB();
+    lb.push({name:name||"Anonymous",score:sc,moves:moveEl.textContent||0,time:timerEl.textContent});
+    lb.sort((a,b)=>b.score-a.score); lb.splice(5); saveLB(lb); renderLB(); flashThunder();
   }
   function renderLB(){
     const lb=loadLB();
@@ -458,7 +556,7 @@
 
   /* ------ SPAWN ------ */
   function emptyCells(){ const c=[]; for(let r=0;r<SIZE;r++) for(let c2=0;c2<SIZE;c2++) if(!board[r][c2]) c.push({r,c:c2}); return c; }
-  function spawn(){ const e=emptyCells(); if(!e.length) return; const s=e[Math.floor(Math.random()*e.length)]; board[s.r][s.c]=Math.random()<0.9?2:4; }
+  function spawn(){ const e=emptyCells(); if(!e.length) return; const s=e[Math.floor(Math.random()*e.length)]; board[s.r][s.c]=Math.random()<0.9?1:2; }
 
   /* ------ RENDER ------ */
   function fscale(v){ return v>=1000?"sm":v>=100?"md":"lg"; }
@@ -482,7 +580,7 @@
   function updateScore(prev){
     scoreEl.textContent=score;
     if(typeof prev==="number"&&score>prev){ const a=document.createElement("div"); a.className="score-addition"; a.textContent="+"+(score-prev); scoreEl.parentElement.appendChild(a); setTimeout(()=>a.remove(),600); }
-    if(score>best){ best=score; bestEl.textContent=best; saveBest(); }
+    updateGlobalBestIfHigher(score);
   }
   function hideOverlays(){ winOverlay.classList.remove("show"); overOverlay.classList.remove("show"); }
 
@@ -538,7 +636,7 @@
   /* ------ WIN / OVER ------ */
   function checkWin(){
     if(hasWon||keepGoing) return;
-    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]>=2048){
+    for(let r=0;r<SIZE;r++) for(let c=0;c<SIZE;c++) if(board[r][c]>=1024){
       hasWon=true; locked=true; stopTimer(); sndWin();
       winInfo.textContent="Score: "+score.toLocaleString()+"  |  Moves: "+moves+"  |  Time: "+timerEl.textContent;
       winOverlay.classList.add("show"); return;
