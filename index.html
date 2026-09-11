@@ -336,11 +336,12 @@
     <div class="theme-pill" data-t="purple" title="Purple"></div>
   </div>
 
-  <!-- Action buttons - icon only -->
+  <!-- Action buttons -->
   <div class="action-row">
-    <button class="btn" id="newGameBtn" title="New Game">&#9654; New Game</button>
+    <button class="btn" id="newGameBtn" title="New Game">&#9654; New</button>
     <button class="btn" id="undoBtn" disabled title="Undo last move">&#8617; Undo</button>
     <button class="btn" id="soundBtn" title="Toggle Sound"><span id="soundIcon">&#128264;</span> <span id="soundText">Sound</span></button>
+    <button class="btn" id="topShareBtn" style="background:#25D366;color:#fff;" title="Share on WhatsApp">&#128293; Share</button>
   </div>
 
   <!-- Game Board -->
@@ -690,6 +691,8 @@ function updateGlobalBestIfHigher(newScore) {
       window.open(waUrl, "_blank");
     }
   }
+  const topShareBtn=$("topShareBtn");
+  if(topShareBtn) topShareBtn.addEventListener("click",()=>shareScore(score > 0 ? `I have ${score.toLocaleString()} points` : "Check out this puzzle"));
   if(winShareBtn) winShareBtn.addEventListener("click",()=>shareScore("I reached the 1024 tile & WON!"));
   if(overShareBtn) overShareBtn.addEventListener("click",()=>shareScore(`I scored ${score.toLocaleString()} points`));
 
