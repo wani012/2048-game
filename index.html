@@ -577,47 +577,15 @@
   </div>
 
 </div>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
 <script>
 (function(){
   "use strict";
 
   const SIZE = 4;
-const K_BEST  = "g1024_best"; // kept for fallback if needed
-const K_LB    = "g1024_lb";
-const K_THEME = "g1024_theme";
-const K_SOUND = "g1024_sound";
-
-// --- Firebase configuration (replace placeholders with your project values) ---
-const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const bestRef = db.ref('globalBest');
-// Load the global best from Firebase on page load
-bestRef.once('value').then(snap => {
-  const remoteBest = snap.val();
-  best = remoteBest ?? 0;
-  bestEl.textContent = best;
-});
-// Helper to update the global best when a higher score is achieved
-function updateGlobalBestIfHigher(newScore) {
-  if (newScore > best) {
-    best = newScore;
-    bestEl.textContent = best;
-    bestRef.set(best);
-  }
-}
-
+  const K_BEST  = "g1024_best";
+  const K_LB    = "g1024_lb";
+  const K_THEME = "g1024_theme";
+  const K_SOUND = "g1024_sound";
 
   let board=[], prevBoard=null, prevScore=0, prevMoves=0;
   let score=0, best=0, moves=0;
@@ -628,14 +596,26 @@ function updateGlobalBestIfHigher(newScore) {
   const boardWrap=$("boardWrap"), gridBg=$("gridBg"), tilesLayer=$("tilesLayer");
   const scoreEl=$("scoreValue"), bestEl=$("bestValue");
   const newBtn=$("newGameBtn"), undoBtn=$("undoBtn"), soundBtn=$("soundBtn");
-  const soundIcon=$("soundIcon"), soundText=$("soundText");
+  const soundIcon=$("soundIcon");
   const winOverlay=$("winOverlay"), overOverlay=$("overOverlay");
   const winInfo=$("winInfo"), overInfo=$("overInfo");
   const keepGoingBtn=$("keepGoingBtn"), winNewBtn=$("winNewBtn"), overNewBtn=$("overNewBtn");
-  const winShareBtn=$("winShareBtn"), overShareBtn=$("overShareBtn");
+  const winShareBtn=$("winShareBtn"), overShareBtn=$("overShareBtn"), topShareBtn=$("topShareBtn");
   const moveEl=$("moveCount"), timerEl=$("timerDisplay");
   const nameRow=$("nameRow"), nameEl=$("playerName"), saveBtn=$("saveBtn");
-  const lbList=$("lbList");
+  const lbList=$("lbList"), toastEl=$("toastMsg");
+  const hammerBtn=$("hammerBtn"), shuffleBtn=$("shuffleBtn");
+  const hammerCountEl=$("hammerCount"), shuffleCountEl=$("shuffleCount");
+  const modeClassic=$("modeClassic"), modeBlitz=$("modeBlitz"), modeDaily=$("modeDaily");
+  const installBanner=$("installBanner"), installBtn=$("installBtn");
+
+  function updateGlobalBestIfHigher(newScore) {
+    if (newScore > best) {
+      best = newScore;
+      bestEl.textContent = best.toLocaleString();
+      saveBest();
+    }
+  }
 
   /* ------ SOUND ------ */
   let actx=null;
@@ -661,7 +641,6 @@ function updateGlobalBestIfHigher(newScore) {
   const sndOver  = ()=>beep(100,"sawtooth",0.4,0.2);
 
   soundOn = localStorage.getItem(K_SOUND) !== "off";
-  const toastEl = $("toastMsg");
   let toastTimer = null;
   function showToast(msg){
     if(!toastEl) return;
@@ -673,7 +652,6 @@ function updateGlobalBestIfHigher(newScore) {
 
   function updateSoundUI(){
     if(soundIcon) soundIcon.textContent = soundOn ? "\uD83D\uDD0A" : "\uD83D\uDD07";
-    if(soundText) soundText.textContent  = soundOn ? "Sound ON"   : "Sound OFF";
   }
   updateSoundUI();
   soundBtn.addEventListener("click",()=>{
@@ -782,7 +760,7 @@ function updateGlobalBestIfHigher(newScore) {
     gridBg.innerHTML="";
     for(let i=0;i<SIZE*SIZE;i++){ const c=document.createElement("div"); c.className="cell-bg"; gridBg.appendChild(c); }
   }
-  function loadBest(){ best=parseInt(localStorage.getItem(K_BEST)||"0",10)||0; bestEl.textContent=best; }
+  function loadBest(){ best=parseInt(localStorage.getItem(K_BEST)||"0",10)||0; bestEl.textContent=best.toLocaleString(); }
   function saveBest(){ localStorage.setItem(K_BEST,String(best)); }
   function emptyB(){ return Array.from({length:SIZE},()=>new Array(SIZE).fill(0)); }
   function cloneB(b){ return b.map(r=>[...r]); }
@@ -792,7 +770,17 @@ function updateGlobalBestIfHigher(newScore) {
     board=emptyB(); prevBoard=null; score=0; moves=0;
     hasWon=false; keepGoing=false; locked=false;
     hammerActive=false;
-    if(hammerBtn) hammerBtn.classList.remove("active");
+    hammerCount=2;
+    shuffleCount=1;
+    if(hammerBtn){
+      hammerBtn.classList.remove("active");
+      hammerBtn.disabled=false;
+    }
+    if(shuffleBtn){
+      shuffleBtn.disabled=false;
+    }
+    if(hammerCountEl) hammerCountEl.textContent=hammerCount;
+    if(shuffleCountEl) shuffleCountEl.textContent=shuffleCount;
     if(gameMode === "daily"){
       dailyRand = getDailySeed(); // reset daily sequence
     }
@@ -852,8 +840,8 @@ function updateGlobalBestIfHigher(newScore) {
     }
   }
   function updateScore(prev){
-    scoreEl.textContent=score;
-    if(typeof prev==="number"&&score>prev){ const a=document.createElement("div"); a.className="score-addition"; a.textContent="+"+(score-prev); scoreEl.parentElement.appendChild(a); setTimeout(()=>a.remove(),600); }
+    scoreEl.textContent=score.toLocaleString();
+    if(typeof prev==="number"&&score>prev){ const a=document.createElement("div"); a.className="score-addition"; a.textContent="+"+(score-prev).toLocaleString(); scoreEl.parentElement.appendChild(a); setTimeout(()=>a.remove(),600); }
     updateGlobalBestIfHigher(score);
   }
   function hideOverlays(){ winOverlay.classList.remove("show"); overOverlay.classList.remove("show"); }
@@ -961,14 +949,11 @@ function updateGlobalBestIfHigher(newScore) {
       window.open(waUrl, "_blank");
     }
   }
-  const topShareBtn=$("topShareBtn");
   if(topShareBtn) topShareBtn.addEventListener("click",()=>shareScore(score > 0 ? `I have ${score.toLocaleString()} points` : "Check out this puzzle"));
   if(winShareBtn) winShareBtn.addEventListener("click",()=>shareScore("I reached the 1024 tile & WON!"));
   if(overShareBtn) overShareBtn.addEventListener("click",()=>shareScore(`I scored ${score.toLocaleString()} points`));
+
   /* ------ POWER-UPS & MODES LISTENERS ------ */
-  const hammerBtn = $("hammerBtn"), shuffleBtn = $("shuffleBtn");
-  const hammerCountEl = $("hammerCount"), shuffleCountEl = $("shuffleCount");
-  const modeClassic = $("modeClassic"), modeBlitz = $("modeBlitz"), modeDaily = $("modeDaily");
 
   hammerBtn.addEventListener("click",()=>{
     if(hammerCount <= 0 || locked) return;
@@ -1014,7 +999,6 @@ function updateGlobalBestIfHigher(newScore) {
 
   /* ------ PWA SERVICE WORKER & INSTALL PROMPT ------ */
   let deferredPrompt;
-  const installBanner = $("installBanner"), installBtn = $("installBtn");
   window.addEventListener("beforeinstallprompt", e => {
     e.preventDefault();
     deferredPrompt = e;
